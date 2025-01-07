@@ -98,8 +98,6 @@ public class linearOpMode extends LinearOpMode {
         wristPower = 1;
       } else if (gamepad2.left_trigger > 0) {
         wristPower = -1;
-      } else {
-        wristPower = slideExtendPower;
       }
 
       //theory
