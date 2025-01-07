@@ -3,6 +3,7 @@ import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -66,7 +67,7 @@ public class linearOpMode extends LinearOpMode {
     // linear slide
     slideExtension.setDirection(DcMotor.Direction.FORWARD);
     slideAbduction.setDirection(DcMotor.Direction.FORWARD);
-    slideAbduction2.setDirection(DcMotor.Direction.FORWARD);
+    slideAbduction2.setDirection(DcMotor.Direction.REVERSE);
 
     //wrist
     wrist.setDirection(DcMotor.Direction.FORWARD);
@@ -90,8 +91,23 @@ public class linearOpMode extends LinearOpMode {
 
       // linear slide controls
       double slideExtendPower = gamepad2.left_stick_y;
-      double wristPower = gamepad2.left_stick_y * 1.10;
       double slideAbdPower = gamepad2.right_stick_y;
+
+      double wristPower = 0;
+      if (gamepad2.right_trigger > 0) {
+        wristPower = 1;
+      } else if (gamepad2.left_trigger > 0) {
+        wristPower = -1;
+      } else {
+        wristPower = slideExtendPower;
+      }
+
+      //theory
+      /*
+       wristPower = gamepad2.left_trigger
+       wristPower = -gamepad2.right_trigger
+
+      */
 
       // drive train controls
       double y = -gamepad1.left_stick_y;
