@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -12,7 +11,6 @@ import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
-
 
 /*
  * This OpMode illustrates the concept of driving a path based on encoder counts.
@@ -114,7 +112,6 @@ public class AutoOpMode extends LinearOpMode {
             }
         });
 
-
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg dzrives may require direction flips
@@ -130,14 +127,12 @@ public class AutoOpMode extends LinearOpMode {
 
         wrist.setDirection(DcMotor.Direction.FORWARD);
 
-
         frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         wrist.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
 
         // sigma
         slideExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -163,8 +158,6 @@ public class AutoOpMode extends LinearOpMode {
         backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-
-
         // i hate this
         slideExtension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideAbduction.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -176,7 +169,6 @@ public class AutoOpMode extends LinearOpMode {
                 frontRightMotor.getCurrentPosition(),
                 backLeftMotor.getCurrentPosition(),
                 backRightMotor.getCurrentPosition()
-
         );
         telemetry.update();
 
@@ -189,13 +181,17 @@ public class AutoOpMode extends LinearOpMode {
 //        encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
 //        encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
+        // move to submersible from start
+        encoderDrive(1, 18.5,18.5, 0 );
+
+        // TODO score
+
+        // pick up scoring element from spike mark 1
+        encoderDrive(1, 32, 44); // approx 38 inch movement
 
 
-        //drive foward
-        encoderDrive(DRIVE_SPEED,   4,4, 2 );
-        //turn right
-        encoderDrive(TURN_SPEED,   12, -12, 4.0);
-        //drive foward
+        encoderDrive(1, 12, 12, 0);
+
         telemetry.addData("Path", "Complete");
         telemetry.update();
         sleep(1000);  // pause to display final telemetry message.
@@ -209,9 +205,7 @@ public class AutoOpMode extends LinearOpMode {
      *  2) Move runs out of time
      *  3) Driver stops the OpMode running.
      */
-    public void encoderDrive(double speed,
-                             double leftInches, double rightInches,
-                             double timeoutS) {
+    public void encoderDrive(double speed, double leftInches, double rightInches, double timeoutS) {
         int newLeftFrontTarget;
         int newRightFrontTarget;
         int newLeftBackTarget;
@@ -276,9 +270,8 @@ public class AutoOpMode extends LinearOpMode {
         }
     }
 
-    public void moveWrist(int position) {
-        int desiredPosition = 720; // The position (in ticks) that you want the motor to move to
-        wrist.setTargetPosition(desiredPosition); // Tells the motor that the position it should go to is desiredPosition
-        wrist.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    // overloaded method for NO TIMEOUT CUZ ITS USELESS
+    public void encoderDrive(double speed, double leftInches, double rightInches) {
+        encoderDrive(speed, leftInches, rightInches, 0);
     }
 }
