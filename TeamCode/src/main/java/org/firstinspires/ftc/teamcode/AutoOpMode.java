@@ -182,15 +182,14 @@ public class AutoOpMode extends LinearOpMode {
 //        encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
         // move to submersible from start
-        encoderDrive(1, 18.5,18.5, 0 );
+        encoderDrive(1, 18.5,18.5);
 
         // TODO score
 
         // pick up scoring element from spike mark 1
         encoderDrive(1, 32, 44); // approx 38 inch movement
 
-
-        encoderDrive(1, 12, 12, 0);
+        encoderDrive(1, 12, 12);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -272,6 +271,6 @@ public class AutoOpMode extends LinearOpMode {
 
     // overloaded method for NO TIMEOUT CUZ ITS USELESS
     public void encoderDrive(double speed, double leftInches, double rightInches) {
-        encoderDrive(speed, leftInches, rightInches, 0);
+        encoderDrive(speed, leftInches, rightInches, 60);
     }
 }
