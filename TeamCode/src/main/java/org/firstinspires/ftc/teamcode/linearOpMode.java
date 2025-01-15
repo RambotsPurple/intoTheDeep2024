@@ -15,7 +15,8 @@ public class linearOpMode extends LinearOpMode {
   private DcMotor slideExtension = null;
   private DcMotor slideAbduction = null;
   private DcMotor slideAbduction2 = null;
-  private DcMotor wrist = null;
+  private Servo  wrist1 = null;
+  private Servo  wrist2 = null;
   private CRServo leftIntake = null;
   private CRServo rightIntake = null;
   private double intakePower = 0;
@@ -36,14 +37,15 @@ public class linearOpMode extends LinearOpMode {
 
     // DcMotors for Linear slide
     slideExtension = hardwareMap.get(DcMotor.class, "slideExtend");
-    wrist = hardwareMap.get(DcMotor.class, "wrist");
+    wrist1 = hardwareMap.get(Servo.class, "wrist1");
+    wrist2 = hardwareMap.get(Servo.class, "wrist2");
     slideAbduction = hardwareMap.get(DcMotor.class, "slideAbd");
     slideAbduction2 = hardwareMap.get(DcMotor.class, "slideAbd2");
 
     slideExtension.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
     slideAbduction.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
     slideAbduction2.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-    wrist.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+
 
     // Takers
     leftIntake = hardwareMap.get(CRServo.class, "l_intake");
@@ -70,8 +72,6 @@ public class linearOpMode extends LinearOpMode {
     slideAbduction2.setDirection(DcMotor.Direction.REVERSE);
 
     //wrist
-    wrist.setDirection(DcMotor.Direction.FORWARD);
-
     waitForStart();
 
     if (isStopRequested()) return;
@@ -92,13 +92,7 @@ public class linearOpMode extends LinearOpMode {
       // linear slide controls
       double slideExtendPower = gamepad2.left_stick_y;
       double slideAbdPower = gamepad2.right_stick_y;
-
-      double wristPower = 0;
-      if (gamepad2.right_trigger > 0) {
-        wristPower = 1;
-      } else if (gamepad2.left_trigger > 0) {
-        wristPower = -1;
-      }
+      double wristpower = gamepad2.left_stick_x;
 
       //theory
       /*
@@ -149,6 +143,9 @@ public class linearOpMode extends LinearOpMode {
         intakeReleased = true;
       }
 
+
+
+
       // Power to the wheels
       frontLeftMotor.setPower(frontLeftPower);
       backLeftMotor.setPower(backLeftPower);
@@ -161,8 +158,8 @@ public class linearOpMode extends LinearOpMode {
       slideExtension.setPower(slideExtendPower);
 
       // Wrist power
-      wrist.setPower(wristPower);
-
+      wrist1.setPosition(wristpower);
+      wrist2.setPosition(wristpower);
       // Power to the intake
       leftIntake.setPower(intakePower);
       rightIntake.setPower(intakePower);
@@ -177,7 +174,7 @@ public class linearOpMode extends LinearOpMode {
       telemetry.addData("Intake power: ", intakePower);
       telemetry.addData("Slide extension power: ", slideExtendPower);
       telemetry.addData("Slide abduction power: ", slideAbdPower);
-      telemetry.addData("Wrist power: ", wristPower);
+      telemetry.addData("Wrist power: ", wristpower);
       telemetry.update();
 
     }
