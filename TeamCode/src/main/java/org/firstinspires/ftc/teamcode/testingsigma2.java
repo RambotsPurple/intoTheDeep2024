@@ -192,8 +192,4 @@ public class testingsigma2 extends LinearOpMode {
 
         }
     }
-
-    public static void setArmPos(double position) {
-
-    }
 }

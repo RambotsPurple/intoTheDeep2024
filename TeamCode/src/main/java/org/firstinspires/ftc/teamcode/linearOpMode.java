@@ -101,6 +101,22 @@ public class linearOpMode extends LinearOpMode {
 
       */
 
+      double wristPower = 0;
+      if (gamepad2.right_trigger) {
+        wristPower = 1;
+      } else if (gamepad2.left_trigger > 0) {
+        wristPower = -1;
+      } else {
+        wristPower = slideExtendPower;
+      }
+
+      //theory
+      /*
+       wristPower = gamepad2.left_trigger
+       wristPower = -gamepad2.right_trigger
+
+      */
+
       // drive train controls
       double y = -gamepad1.left_stick_y;
       double x = gamepad1.left_stick_x * 1.1;
