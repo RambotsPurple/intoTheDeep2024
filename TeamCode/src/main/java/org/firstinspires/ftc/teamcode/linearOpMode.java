@@ -17,9 +17,16 @@ public class linearOpMode extends LinearOpMode {
   private DcMotor slideAbduction2 = null;
   private Servo  wrist1 = null;
   private Servo  wrist2 = null;
-  private CRServo leftIntake = null;
-  private CRServo rightIntake = null;
+  private Servo leftIntake = null;
+  private Servo rightIntake = null;
   private double intakePower = 0;
+
+  static final double COUNTS_PER_MOTOR_REV = 537.6; // eg: TETRIX Motor Encoder
+
+  final private double ABD_TO_RUNG = 0;
+  final private double ABD_DOWN = 0;
+
+
 
   // THE SENSOR
   private ColorSensor sensor  = null;
@@ -48,8 +55,8 @@ public class linearOpMode extends LinearOpMode {
 
 
     // Takers
-    leftIntake = hardwareMap.get(CRServo.class, "l_intake");
-    rightIntake = hardwareMap.get(CRServo.class, "r_intake");
+    leftIntake = hardwareMap.get(Servo.class, "l_intake");
+    rightIntake = hardwareMap.get(Servo.class, "r_intake");
     sensor = hardwareMap.get(ColorSensor.class, "sensor");
 
     // MaybeIntake = hardwareMap.get(DcMotor.class, "intake");
@@ -62,14 +69,15 @@ public class linearOpMode extends LinearOpMode {
     backRightMotor.setDirection(DcMotor.Direction.REVERSE);
 
     // intake
-    leftIntake.setDirection(CRServo.Direction.FORWARD);
-    rightIntake.setDirection(CRServo.Direction.REVERSE);
     boolean intakeReleased = true;
 
     // linear slide
     slideExtension.setDirection(DcMotor.Direction.FORWARD);
     slideAbduction.setDirection(DcMotor.Direction.FORWARD);
     slideAbduction2.setDirection(DcMotor.Direction.REVERSE);
+
+    // normalize motor positions
+    double normalizedAbdPos1 = (double)slideAbduction.getCurrentPosition() / COUNTS_PER_MOTOR_REV; // TODO test
 
     //wrist
     waitForStart();
@@ -92,30 +100,8 @@ public class linearOpMode extends LinearOpMode {
       // linear slide controls
       double slideExtendPower = gamepad2.left_stick_y;
       double slideAbdPower = gamepad2.right_stick_y;
-      double wristpower = gamepad2.left_stick_x;
 
-      //theory
-      /*
-       wristPower = gamepad2.left_trigger
-       wristPower = -gamepad2.right_trigger
 
-      */
-
-      double wristPower = 0;
-      if (gamepad2.right_trigger) {
-        wristPower = 1;
-      } else if (gamepad2.left_trigger > 0) {
-        wristPower = -1;
-      } else {
-        wristPower = slideExtendPower;
-      }
-
-      //theory
-      /*
-       wristPower = gamepad2.left_trigger
-       wristPower = -gamepad2.right_trigger
-
-      */
 
       // drive train controls
       double y = -gamepad1.left_stick_y;
@@ -159,7 +145,11 @@ public class linearOpMode extends LinearOpMode {
         intakeReleased = true;
       }
 
-
+      // presets
+//      if (gamepad2.y) {
+//        slideAbduction.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        slideAbduction2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//      }
 
 
       // Power to the wheels
@@ -174,13 +164,18 @@ public class linearOpMode extends LinearOpMode {
       slideExtension.setPower(slideExtendPower);
 
       // Wrist power
-      wrist1.setPosition(wristpower);
-      wrist2.setPosition(wristpower);
+      wrist1.setPosition(gamepad2.left_trigger);
+      wrist2.setPosition(gamepad2.left_trigger);
       // Power to the intake
-      leftIntake.setPower(intakePower);
-      rightIntake.setPower(intakePower);
+      leftIntake.setPosition(intakePower);
+      rightIntake.setPosition(intakePower);
 
       // Telemetry
+      telemetry.addData("Normalized Abd 1 position:", normalizedAbdPos1);
+      telemetry.addData("Abd 1 position:", slideAbduction.getCurrentPosition());
+      telemetry.addData("Abd 2 position:", slideAbduction2.getCurrentPosition());
+      telemetry.addData("Ext position:", slideExtension.getCurrentPosition());
+
       telemetry.addData("X", x);
       telemetry.addData("Y", y);
       telemetry.addData("Alpha", sensor.alpha());
@@ -190,9 +185,10 @@ public class linearOpMode extends LinearOpMode {
       telemetry.addData("Intake power: ", intakePower);
       telemetry.addData("Slide extension power: ", slideExtendPower);
       telemetry.addData("Slide abduction power: ", slideAbdPower);
-      telemetry.addData("Wrist power: ", wristpower);
+//      telemetry.addData("Wrist power: ", wristpower);
       telemetry.update();
 
     }
   }
+
 }
