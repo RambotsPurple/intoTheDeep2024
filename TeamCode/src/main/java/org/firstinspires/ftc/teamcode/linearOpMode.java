@@ -23,9 +23,9 @@ public class linearOpMode extends LinearOpMode {
 
   static final double COUNTS_PER_MOTOR_REV = 537.6; // eg: TETRIX Motor Encoder
 
-  final private double ABD_TO_RUNG = 0;
-  final private double ABD_DOWN = 0;
-
+  final private int ABD_TO_RUNG = 100;
+  final private int ABD_DOWN = 0;
+  private boolean runningPreset = false;
 
 
   // THE SENSOR
@@ -52,6 +52,7 @@ public class linearOpMode extends LinearOpMode {
     slideExtension.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
     slideAbduction.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
     slideAbduction2.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+
 
 
     // Takers
@@ -101,8 +102,6 @@ public class linearOpMode extends LinearOpMode {
       double slideExtendPower = gamepad2.left_stick_y;
       double slideAbdPower = gamepad2.right_stick_y;
 
-
-
       // drive train controls
       double y = -gamepad1.left_stick_y;
       double x = gamepad1.left_stick_x * 1.1;
@@ -146,11 +145,32 @@ public class linearOpMode extends LinearOpMode {
       }
 
       // presets
-//      if (gamepad2.y) {
-//        slideAbduction.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        slideAbduction2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//      }
+      if (gamepad2.dpad_up && !runningPreset) {
+        runningPreset = true;
+        slideAbduction.setTargetPosition(ABD_TO_RUNG);
+        slideAbduction2.setTargetPosition(ABD_TO_RUNG);
+        slideAbduction.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slideAbduction2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      } else if (gamepad2.dpad_down && !runningPreset) {
+        runningPreset = true;
+        slideAbduction.setTargetPosition(ABD_DOWN);
+        slideAbduction2.setTargetPosition(ABD_DOWN);
+        slideAbduction.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slideAbduction2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      } // if
 
+      // STOP ALL PRESETS
+      if (gamepad2.dpad_left) {
+        slideAbduction.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slideAbduction2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        runningPreset = false;
+      }
+
+      if (runningPreset && slideAbduction.getCurrentPosition() > slideAbduction.getTargetPosition() - 5 && slideAbduction.getCurrentPosition() < slideAbduction.getTargetPosition() + 5) {
+          slideAbduction.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+          slideAbduction2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+          runningPreset = false;
+      }
 
       // Power to the wheels
       frontLeftMotor.setPower(frontLeftPower);
@@ -159,18 +179,27 @@ public class linearOpMode extends LinearOpMode {
       backRightMotor.setPower(backRightPower);
 
       // Power to the arm
-      slideAbduction.setPower(slideAbdPower);
-      slideAbduction2.setPower(slideAbdPower);
+      if(runningPreset) {
+        slideAbduction.setPower(0.8);
+        slideAbduction2.setPower(0.8);
+      } else {
+        slideAbduction.setPower(slideAbdPower);
+        slideAbduction2.setPower(slideAbdPower);
+      } // if else
+
       slideExtension.setPower(slideExtendPower);
 
       // Wrist power
       wrist1.setPosition(gamepad2.left_trigger);
       wrist2.setPosition(gamepad2.left_trigger);
+
       // Power to the intake
       leftIntake.setPosition(intakePower);
       rightIntake.setPosition(intakePower);
 
       // Telemetry
+      telemetry.addData("RUNNING PRESET:", runningPreset);
+      telemetry.addData("RUNMODE:", slideAbduction.getMode());
       telemetry.addData("Normalized Abd 1 position:", normalizedAbdPos1);
       telemetry.addData("Abd 1 position:", slideAbduction.getCurrentPosition());
       telemetry.addData("Abd 2 position:", slideAbduction2.getCurrentPosition());
