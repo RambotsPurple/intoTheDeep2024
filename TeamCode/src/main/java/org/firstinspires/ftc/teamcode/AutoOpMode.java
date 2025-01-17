@@ -97,20 +97,20 @@ public class AutoOpMode extends LinearOpMode {
         boolean intakeReleased = true;
 
         // Initialize webcam
-        webcam = hardwareMap.get(OpenCvCamera.class, "Webcam 1");
-        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                // Start streaming to the phone's display
-                webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
-            }
-
-            @Override
-            public void onError(int errorCode) {
-                telemetry.addData("Webcam Error", "Error code: " + errorCode);
-                telemetry.update();
-            }
-        });
+//        webcam = hardwareMap.get(OpenCvCamera.class, "Webcam 1");
+//        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+//            @Override
+//            public void onOpened() {
+//                // Start streaming to the phone's display
+//                webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+//            }
+//
+//            @Override
+//            public void onError(int errorCode) {
+//                telemetry.addData("Webcam Error", "Error code: " + errorCode);
+//                telemetry.update();
+//            }
+//        });
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
@@ -272,5 +272,13 @@ public class AutoOpMode extends LinearOpMode {
     // overloaded method for NO TIMEOUT CUZ ITS USELESS
     public void encoderDrive(double speed, double leftInches, double rightInches) {
         encoderDrive(speed, leftInches, rightInches, 60);
+    }
+    public void movearm() {
+//        move arm to position
+        slideExtension.setTargetPosition(10);
+        slideExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        power then wait for it to run to power then set power back to 0
+        slideExtension.setPower(3);
+
     }
 }
