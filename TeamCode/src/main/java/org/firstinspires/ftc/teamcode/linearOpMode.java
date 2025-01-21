@@ -195,7 +195,7 @@ public class linearOpMode extends LinearOpMode {
 
       // Power to the intake
       leftIntake.setPosition(intakePower);
-      rightIntake.setPosition(intakePower);
+      rightIntake.setPosition(intakePower == 0 ? 1 : 0);
 
       // Telemetry
       telemetry.addData("RUNNING PRESET:", runningPreset);
