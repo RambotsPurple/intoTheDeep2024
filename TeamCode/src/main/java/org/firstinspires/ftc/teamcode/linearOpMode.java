@@ -31,6 +31,9 @@ public class linearOpMode extends LinearOpMode {
   // THE SENSOR
   private ColorSensor sensor  = null;
 
+  // wrist
+  private double wristPos = 0;
+
   @Override
   public void runOpMode() {
 
@@ -79,6 +82,14 @@ public class linearOpMode extends LinearOpMode {
 
     // normalize motor positions
     double normalizedAbdPos1 = (double)slideAbduction.getCurrentPosition() / COUNTS_PER_MOTOR_REV; // TODO test
+
+    // ENCODERS
+    slideAbduction2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    slideAbduction2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    slideAbduction.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    slideAbduction.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    slideExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    slideExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     //wrist
     waitForStart();
@@ -137,6 +148,15 @@ public class linearOpMode extends LinearOpMode {
         intakeReleased = false;
       }
 
+      // increment intake pos
+      else if (gamepad2.b && intakeReleased) {
+        intakePower = Math.max(intakePower, intakePower - 0.1);
+        intakeReleased = false;
+      } else if (gamepad2.y && intakeReleased) {
+        intakePower = Math.min(intakePower, intakePower + 0.1);
+        intakeReleased = false;
+      }
+
       if(!gamepad2.a && !gamepad2.b) {
         intakeReleased = true;
       }
@@ -180,18 +200,23 @@ public class linearOpMode extends LinearOpMode {
         slideAbduction.setPower(0.8);
         slideAbduction2.setPower(0.8);
       } else {
-        slideAbduction.setPower(slideAbdPower);
-        slideAbduction2.setPower(slideAbdPower);
+        slideAbduction.setPower(-slideAbdPower * 0.65);
+        slideAbduction2.setPower(-slideAbdPower * 0.65);
       } // if else
 
-      slideExtension.setPower(slideExtendPower);
+      slideExtension.setPower(-slideExtendPower);
 
       // Wrist power
-      wrist1.setPosition(gamepad2.left_trigger);
+      wrist1.setPosition(wristPos);
+      if (gamepad2.left_trigger > 0) {
+        wristPos = Math.min(1, wristPos + 0.1);
+      } else if (gamepad2.left_bumper) {
+        wristPos = Math.max(0, wristPos - 0.1);
+      }
 
       // Power to the intake
       leftIntake.setPosition(intakePower);
-      rightIntake.setPosition(intakePower == 0 ? 1 : 0);
+      rightIntake.setPosition(intakePower - (1 - intakePower));
 
       // Telemetry
       telemetry.addData("RUNNING PRESET:", runningPreset);
@@ -200,14 +225,14 @@ public class linearOpMode extends LinearOpMode {
       telemetry.addData("Abd 1 position:", slideAbduction.getCurrentPosition());
       telemetry.addData("Abd 2 position:", slideAbduction2.getCurrentPosition());
       telemetry.addData("Ext position:", slideExtension.getCurrentPosition());
-      telemetry.addData("wrist pow:", wrist1);
+      telemetry.addData("wrist pos:", wrist1);
       telemetry.addData("X", x);
       telemetry.addData("Y", y);
       telemetry.addData("Alpha", sensor.alpha());
       telemetry.addData("Red  ", sensor.red());
       telemetry.addData("Green", sensor.green());
       telemetry.addData("Blue ", sensor.blue());
-      telemetry.addData("Intake power: ", intakePower);
+      telemetry.addData("Intake pos (right is inverse): ", intakePower);
       telemetry.addData("Slide extension power: ", slideExtendPower);
       telemetry.addData("Slide abduction power: ", slideAbdPower);
 //      telemetry.addData("Wrist power: ", wristpower);
