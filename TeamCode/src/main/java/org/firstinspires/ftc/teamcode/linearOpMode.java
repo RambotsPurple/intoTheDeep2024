@@ -103,8 +103,8 @@ public class linearOpMode extends LinearOpMode {
       double slideAbdPower = gamepad2.right_stick_y;
 
       // drive train controls
-      double y = -gamepad1.left_stick_y;
-      double x = gamepad1.left_stick_x * 1.1;
+      double y = -gamepad1.left_stick_x;
+      double x = gamepad1.left_stick_y * 1.1;
       double turn = gamepad1.right_stick_x;
 
       // input: theta and power
@@ -136,7 +136,7 @@ public class linearOpMode extends LinearOpMode {
         intakePower = (intakePower == 1 ? 0 : 1);
         intakeReleased = false;
       } else if (gamepad2.b && intakeReleased) {
-        intakePower = (intakePower == -1 ? 0 : -1);
+        intakePower = (intakePower == -1 ? 0 : -1);  // disregard gamepad b
         intakeReleased = false;
       }
 
