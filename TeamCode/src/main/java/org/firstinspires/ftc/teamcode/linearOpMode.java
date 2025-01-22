@@ -103,8 +103,8 @@ public class linearOpMode extends LinearOpMode {
       double slideAbdPower = gamepad2.right_stick_y;
 
       // drive train controls
-      double y = -gamepad1.left_stick_x;
-      double x = gamepad1.left_stick_y * 1.1;
+      double y = -gamepad1.left_stick_y;
+      double x = gamepad1.left_stick_x * 1.1;
       double turn = gamepad1.right_stick_x;
 
       // input: theta and power
@@ -134,9 +134,6 @@ public class linearOpMode extends LinearOpMode {
       // HOTFIX: A is open, B is close
       if (gamepad2.a && intakeReleased) {
         intakePower = (intakePower == 1 ? 0 : 1);
-        intakeReleased = false;
-      } else if (gamepad2.b && intakeReleased) {
-        intakePower = (intakePower == -1 ? 0 : -1);  // disregard gamepad b
         intakeReleased = false;
       }
 
@@ -191,7 +188,6 @@ public class linearOpMode extends LinearOpMode {
 
       // Wrist power
       wrist1.setPosition(gamepad2.left_trigger);
-      wrist2.setPosition(gamepad2.left_trigger);
 
       // Power to the intake
       leftIntake.setPosition(intakePower);
@@ -204,7 +200,7 @@ public class linearOpMode extends LinearOpMode {
       telemetry.addData("Abd 1 position:", slideAbduction.getCurrentPosition());
       telemetry.addData("Abd 2 position:", slideAbduction2.getCurrentPosition());
       telemetry.addData("Ext position:", slideExtension.getCurrentPosition());
-
+      telemetry.addData("wrist pow:", wrist1);
       telemetry.addData("X", x);
       telemetry.addData("Y", y);
       telemetry.addData("Alpha", sensor.alpha());
