@@ -166,26 +166,18 @@ public class linearOpMode extends LinearOpMode {
         runningPreset = true;
         slideAbduction.setTargetPosition(ABD_TO_RUNG);
         slideAbduction2.setTargetPosition(ABD_TO_RUNG);
-        slideAbduction.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slideAbduction2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
       } else if (gamepad2.dpad_down && !runningPreset) {
         runningPreset = true;
         slideAbduction.setTargetPosition(ABD_DOWN);
         slideAbduction2.setTargetPosition(ABD_DOWN);
-        slideAbduction.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slideAbduction2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
       } // if
 
       // STOP ALL PRESETS
       if (gamepad2.dpad_left) {
-        slideAbduction.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        slideAbduction2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         runningPreset = false;
       }
 
       if (runningPreset && slideAbduction.getCurrentPosition() > slideAbduction.getTargetPosition() - 5 && slideAbduction.getCurrentPosition() < slideAbduction.getTargetPosition() + 5) {
-          slideAbduction.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-          slideAbduction2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
           runningPreset = false;
       }
 
@@ -197,8 +189,9 @@ public class linearOpMode extends LinearOpMode {
 
       // Power to the arm
       if(runningPreset) {
-        slideAbduction.setPower(0.8);
-        slideAbduction2.setPower(0.8);
+        // TODO FIX
+        slideAbduction.setPower(0.5);
+        slideAbduction2.setPower(0.5);
       } else {
         slideAbduction.setPower(-slideAbdPower * 0.65);
         slideAbduction2.setPower(-slideAbdPower * 0.65);
