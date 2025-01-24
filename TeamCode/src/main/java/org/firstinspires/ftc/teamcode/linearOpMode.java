@@ -7,12 +7,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.IMU;
-
 
 @TeleOp(name = "RambotsPurpleTeleOp")
 public class linearOpMode extends LinearOpMode {
-
   private DcMotor frontLeftMotor = null, backLeftMotor = null;
   private DcMotor frontRightMotor = null, backRightMotor = null;
   private DcMotor slideExtension = null;
@@ -37,12 +34,8 @@ public class linearOpMode extends LinearOpMode {
   // wrist
   private double wristPos = 0;
 
-
-
   @Override
   public void runOpMode() {
-
-
 
     // initializing hardware
 
@@ -204,17 +197,14 @@ public class linearOpMode extends LinearOpMode {
         slideAbduction2.setPower(-slideAbdPower * 0.65);
       } // if else
 
-      slideExtension.setPower(slideExtendPower);
-      slideAbduction.setPower(slideAbdPower);
-      slideAbduction2.setPower(slideAbdPower);
-//      slideExtension.setPower(-slideExtendPower);
+      slideExtension.setPower(-slideExtendPower);
 
       // Wrist power
       wrist1.setPosition(wristPos);
       if (gamepad2.left_trigger > 0) {
-        wristPos = Math.min(1, wristPos + 0.35);
+        wristPos = Math.min(1, wristPos + 0.1);
       } else if (gamepad2.left_bumper) {
-        wristPos = Math.max(0, wristPos - 0.35);
+        wristPos = Math.max(0, wristPos - 0.1);
       }
 
       // Power to the intake
