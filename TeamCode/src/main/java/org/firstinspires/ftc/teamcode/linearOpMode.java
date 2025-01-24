@@ -141,23 +141,20 @@ public class linearOpMode extends LinearOpMode {
         backRightPower /= power - turn;
       }
 
-      // if A on the controller is pressed it will check if the claw is closed
-      // HOTFIX: A is open, B is close
-      if (gamepad2.a && intakeReleased) {
-        intakePower = (intakePower == 1 ? 0 : 1);
-        intakeReleased = false;
+      if(intakeReleased) {
+        if (gamepad2.a) {
+          intakePower = (intakePower == 1 ? 0 : 1);
+          intakeReleased = false;
+        } else if (gamepad2.b) {
+          intakePower = Math.max(intakePower, intakePower - 0.1);
+          intakeReleased = false;
+        } else if (gamepad2.y) {
+          intakePower = Math.min(intakePower, intakePower + 0.1);
+          intakeReleased = false;
+        }
       }
 
-      // increment intake pos
-      else if (gamepad2.b && intakeReleased) {
-        intakePower = Math.max(intakePower, intakePower - 0.1);
-        intakeReleased = false;
-      } else if (gamepad2.y && intakeReleased) {
-        intakePower = Math.min(intakePower, intakePower + 0.1);
-        intakeReleased = false;
-      }
-
-      if(!gamepad2.a && !gamepad2.b) {
+      if(!gamepad2.a && !gamepad2.b && !gamepad2.y) {
         intakeReleased = true;
       }
 
@@ -197,7 +194,7 @@ public class linearOpMode extends LinearOpMode {
         slideAbduction2.setPower(-slideAbdPower * 0.65);
       } // if else
 
-      slideExtension.setPower(-slideExtendPower);
+      slideExtension.setPower(slideExtendPower);
 
       // Wrist power
       wrist1.setPosition(wristPos);
@@ -209,7 +206,7 @@ public class linearOpMode extends LinearOpMode {
 
       // Power to the intake
       leftIntake.setPosition(intakePower);
-      rightIntake.setPosition(intakePower - (1 - intakePower));
+      rightIntake.setPosition(1 - intakePower);
 
       // Telemetry
       telemetry.addData("RUNNING PRESET:", runningPreset);
