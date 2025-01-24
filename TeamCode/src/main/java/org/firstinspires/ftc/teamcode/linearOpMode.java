@@ -141,23 +141,19 @@ public class linearOpMode extends LinearOpMode {
         backRightPower /= power - turn;
       }
 
-      // if A on the controller is pressed it will check if the claw is closed
-      // HOTFIX: A is open, B is close
       if (gamepad2.a && intakeReleased) {
-        intakePower = (intakePower == 1 ? 0 : 1);
+        intakePower = 1 - intakePower;
         intakeReleased = false;
       }
-
-      // increment intake pos
-      else if (gamepad2.b && intakeReleased) {
-        intakePower = Math.max(intakePower, intakePower - 0.1);
+      if (gamepad2.b && intakeReleased) {
+        intakePower = Math.max(0, intakePower - 0.1);
         intakeReleased = false;
       } else if (gamepad2.y && intakeReleased) {
-        intakePower = Math.min(intakePower, intakePower + 0.1);
+        intakePower = Math.min(1, intakePower + 0.1);
         intakeReleased = false;
       }
 
-      if(!gamepad2.a && !gamepad2.b) {
+      if(!gamepad2.a && !gamepad2.b && !gamepad2.y) {
         intakeReleased = true;
       }
 
@@ -178,7 +174,7 @@ public class linearOpMode extends LinearOpMode {
       }
 
       if (runningPreset && slideAbduction.getCurrentPosition() > slideAbduction.getTargetPosition() - 5 && slideAbduction.getCurrentPosition() < slideAbduction.getTargetPosition() + 5) {
-          runningPreset = false;
+        runningPreset = false;
       }
 
       // Power to the wheels
@@ -197,19 +193,19 @@ public class linearOpMode extends LinearOpMode {
         slideAbduction2.setPower(-slideAbdPower * 0.65);
       } // if else
 
-      slideExtension.setPower(-slideExtendPower);
+      slideExtension.setPower(slideExtendPower);
 
       // Wrist power
       wrist1.setPosition(wristPos);
       if (gamepad2.left_trigger > 0) {
-        wristPos = Math.min(1, wristPos + 0.1);
+        wristPos = Math.min(1, wristPos + 0.035);
       } else if (gamepad2.left_bumper) {
-        wristPos = Math.max(0, wristPos - 0.1);
+        wristPos = Math.max(0, wristPos - 0.035);
       }
 
       // Power to the intake
       leftIntake.setPosition(intakePower);
-      rightIntake.setPosition(intakePower - (1 - intakePower));
+      rightIntake.setPosition(1 - intakePower);
 
       // Telemetry
       telemetry.addData("RUNNING PRESET:", runningPreset);

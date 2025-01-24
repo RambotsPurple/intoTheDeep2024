@@ -10,6 +10,14 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.IMU;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+
 
 @TeleOp(name = "RambotsPurpleTeleOp")
 public class testtua extends LinearOpMode {
@@ -43,7 +51,46 @@ public class testtua extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        BNO055IMU               imu;
+        Orientation             lastAngles = new Orientation();
+        double                  globalAngle, power = .30, correction;
 
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+        parameters.mode                = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled      = false;
+
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+        imu.initialize(parameters);
+
+        telemetry.addData("Mode", "calibrating...");
+        telemetry.update();
+
+        while (!isStopRequested() && !imu.isGyroCalibrated())
+        {
+            sleep(50);
+            idle();
+        }
+
+        telemetry.addData("Mode", "waiting for start");
+        telemetry.addData("imu calib status", imu.getCalibrationStatus().toString());
+        telemetry.update();
+
+        // wait for start button.
+
+        waitForStart();
+
+        telemetry.addData("Mode", "running");
+        telemetry.update();
+
+        sleep(1000);
 
 
 
@@ -136,7 +183,7 @@ public class testtua extends LinearOpMode {
             // theta is where we want the direction the robot to go
             // power is (-1) to 1 scale where increasing power will cause the engines to go faster
             double theta = Math.atan2(y, x);
-            double power = Math.hypot(x, y);
+//            double power = Math.hypot(x, y);
             double sin = Math.sin(theta - Math.PI / 4);
             double cos = Math.cos(theta - Math.PI / 4);
             // max variable allows to use the motors at its max power with out disabling it
