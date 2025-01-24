@@ -175,50 +175,53 @@ public class AutoOpMode extends LinearOpMode {
         // Wait for the game to start (driver presses START)
         waitForStart();
 
-        // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting a negative distance (not speed)
-//        encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-//        encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-//        encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
-        // move to submersible from start
-        encoderDrive(1, 18.5, 18.5);
-        // pick up scoring element from spike mark 1
-        encoderDrive(1, 32, 44); // approx 38 inch movement
-        // pushing 3 elements to the specimen station
-        encoderDrive(1, -12, -12, 1); // move back
-        encoderDrive(1, 30, 15, 1); // turn right
-            encoderDrive(1, 32, 32, 1); // move forward
-            encoderDrive(1, 16, 32, 1); // turn left
-            encoderDrive(1, 10, 10, 1); // move forward
-            encoderDrive(1, 30, 15, 1); // turn right
-            encoderDrive(1, 3, 3, 1); // move forward
-            encoderDrive(1, 30, 15, 1); // turn right
-            encoderDrive(1, 40, 40, 1); // move forwared
-            encoderDrive(1, -20, 20, 1); // 180 turn
+//        // Step through each leg of the path,
+//        // Note: Reverse movement is obtained by setting a negative distance (not speed)
+////        encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+////        encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
+////        encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+//        // move to submersible from start
+//        encoderDrive(1, 18.5, 18.5);
+//        // pick up scoring element from spike mark 1
+//        encoderDrive(1, 32, 44); // approx 38 inch movement
+//        // pushing 3 elements to the specimen station
+//        encoderDrive(1, -12, -12, 1); // move back
+//        encoderDrive(1, 30, 15, 1); // turn right
+//            encoderDrive(1, 32, 32, 1); // move forward
+//            encoderDrive(1, 16, 32, 1); // turn left
+//            encoderDrive(1, 10, 10, 1); // move forward
+//            encoderDrive(1, 30, 15, 1); // turn right
+//            encoderDrive(1, 3, 3, 1); // move forward
+//            encoderDrive(1, 30, 15, 1); // turn right
+//            encoderDrive(1, 40, 40, 1); // move forwared
+//            encoderDrive(1, -20, 20, 1); // 180 turn
+//
+//            encoderDrive(1, 40, 40, 1); // move forward
+//            encoderDrive(1, 30, 15, 1); // turn right
+//            encoderDrive(1, 3, 3, 1); // move forward
+//            encoderDrive(1, 15, 30, 1); // turn right
+//            encoderDrive(1, 40, 40, 1); // move forward
+//            encoderDrive(1, -20, 20, 1); // 180 turn
+//            encoderDrive(1, 40, 40, 1); // move forward
+//            encoderDrive(1, 15, 30, 1); // turn right
+//            encoderDrive(1, 3, 3, 1); // move forward
+//            encoderDrive(1, 30, 15, 1); // turn right
+//            encoderDrive(1, 40, 40, 1); // move forward
+//
+//            // hang the specimens
+//            encoderDrive(1, 12, 12, 1); // turn right
+//            encoderDrive(1, 12, 12, 1); // move forward
 
-            encoderDrive(1, 40, 40, 1); // move forward
-            encoderDrive(1, 30, 15, 1); // turn right
-            encoderDrive(1, 3, 3, 1); // move forward
-            encoderDrive(1, 15, 30, 1); // turn right
-            encoderDrive(1, 40, 40, 1); // move forward
-            encoderDrive(1, -20, 20, 1); // 180 turn
-            encoderDrive(1, 40, 40, 1); // move forward
-            encoderDrive(1, 15, 30, 1); // turn right
-            encoderDrive(1, 3, 3, 1); // move forward
-            encoderDrive(1, 30, 15, 1); // turn right
-            encoderDrive(1, 40, 40, 1); // move forward
 
-            // hang the specimens
-            encoderDrive(1, 12, 12, 1); // turn right
-            encoderDrive(1, 12, 12, 1); // move forward
-
-            // park hehehe
-            telemetry.addData("Path", "Complete");
-            telemetry.update();
-            sleep(1000);  // pause to display final telemetry message.
 
 //        park hopefully
-        encoderDrive(1, 40, 40, 1);
+        sleep(2200);
+        encoderDrive(1, 35, 15, 1);
+        encoderDrive(1, 30, 30, 1);
+        // park hehehe
+        telemetry.addData("Path", "Complete");
+        telemetry.update();
+        sleep(1000);  // pause to display final telemetry message.
     }
 
     /*
