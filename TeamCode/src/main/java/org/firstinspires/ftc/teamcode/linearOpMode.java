@@ -141,19 +141,24 @@ public class linearOpMode extends LinearOpMode {
         backRightPower /= power - turn;
       }
 
-      // toggle claw
+      // if A on the controller is pressed it will check if the claw is closed
+      // HOTFIX: A is open, B is close
       if (gamepad2.a && intakeReleased) {
-        intakePower = 1 - intakePower;
+        intakePower = (intakePower == 1 ? 0 : 1);
         intakeReleased = false;
-      } else if(!gamepad2.a) {
-        intakeReleased = true;
       }
 
       // increment intake pos
-      if (gamepad2.b) {
+      else if (gamepad2.b && intakeReleased) {
         intakePower = Math.max(intakePower, intakePower - 0.1);
-      } else if (gamepad2.y) {
+        intakeReleased = false;
+      } else if (gamepad2.y && intakeReleased) {
         intakePower = Math.min(intakePower, intakePower + 0.1);
+        intakeReleased = false;
+      }
+
+      if(!gamepad2.a && !gamepad2.b) {
+        intakeReleased = true;
       }
 
       // presets
@@ -192,19 +197,19 @@ public class linearOpMode extends LinearOpMode {
         slideAbduction2.setPower(-slideAbdPower * 0.65);
       } // if else
 
-      slideExtension.setPower(slideExtendPower);
+      slideExtension.setPower(-slideExtendPower);
 
       // Wrist power
       wrist1.setPosition(wristPos);
-      if (gamepad2.left_trigger > 0.9) {
-        wristPos = Math.min(1, wristPos + 0.05);
+      if (gamepad2.left_trigger > 0) {
+        wristPos = Math.min(1, wristPos + 0.1);
       } else if (gamepad2.left_bumper) {
-        wristPos = Math.max(0, wristPos - 0.05);
+        wristPos = Math.max(0, wristPos - 0.1);
       }
 
       // Power to the intake
       leftIntake.setPosition(intakePower);
-      rightIntake.setPosition(1 - intakePower);
+      rightIntake.setPosition(intakePower - (1 - intakePower));
 
       // Telemetry
       telemetry.addData("RUNNING PRESET:", runningPreset);
@@ -213,7 +218,7 @@ public class linearOpMode extends LinearOpMode {
       telemetry.addData("Abd 1 position:", slideAbduction.getCurrentPosition());
       telemetry.addData("Abd 2 position:", slideAbduction2.getCurrentPosition());
       telemetry.addData("Ext position:", slideExtension.getCurrentPosition());
-      telemetry.addData("wrist pos:", wrist1.getPosition());
+      telemetry.addData("wrist pos:", wrist1);
       telemetry.addData("X", x);
       telemetry.addData("Y", y);
       telemetry.addData("Alpha", sensor.alpha());
