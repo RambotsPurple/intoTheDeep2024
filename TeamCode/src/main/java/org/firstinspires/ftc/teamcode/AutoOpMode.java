@@ -95,22 +95,22 @@ public class AutoOpMode extends LinearOpMode {
         leftIntake = hardwareMap.get(CRServo.class, "l_intake");
         rightIntake = hardwareMap.get(CRServo.class, "r_intake");
         boolean intakeReleased = true;
-
-        // Initialize webcam
-        webcam = hardwareMap.get(OpenCvCamera.class, "Webcam 1");
-        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                // Start streaming to the phone's display
-                webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
-            }
-
-            @Override
-            public void onError(int errorCode) {
-                telemetry.addData("Webcam Error", "Error code: " + errorCode);
-                telemetry.update();
-            }
-        });
+//
+//        // Initialize webcam
+//        webcam = hardwareMap.get(OpenCvCamera.class, "Webcam 1");
+//        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+//            @Override
+//            public void onOpened() {
+//                // Start streaming to the phone's display
+//                webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+//            }
+//
+//            @Override
+//            public void onError(int errorCode) {
+//                telemetry.addData("Webcam Error", "Error code: " + errorCode);
+//                telemetry.update();
+//            }
+//        });
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
@@ -164,7 +164,7 @@ public class AutoOpMode extends LinearOpMode {
         slideAbduction2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Send telemetry message to indicate successful Encoder reset
-        telemetry.addData("Starting at",  "%7d :%7d",
+        telemetry.addData("Starting at", "%7d :%7d",
                 frontLeftMotor.getCurrentPosition(),
                 frontRightMotor.getCurrentPosition(),
                 backLeftMotor.getCurrentPosition(),
@@ -180,20 +180,45 @@ public class AutoOpMode extends LinearOpMode {
 //        encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
 //        encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
 //        encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
-
         // move to submersible from start
-        encoderDrive(1, 18.5,18.5);
-
-        // TODO score
-
+        encoderDrive(1, 18.5, 18.5);
         // pick up scoring element from spike mark 1
         encoderDrive(1, 32, 44); // approx 38 inch movement
+        // pushing 3 elements to the specimen station
+        encoderDrive(1, -12, -12, 1); // move back
+        encoderDrive(1, 30, 15, 1); // turn right
+            encoderDrive(1, 32, 32, 1); // move forward
+            encoderDrive(1, 16, 32, 1); // turn left
+            encoderDrive(1, 10, 10, 1); // move forward
+            encoderDrive(1, 30, 15, 1); // turn right
+            encoderDrive(1, 3, 3, 1); // move forward
+            encoderDrive(1, 30, 15, 1); // turn right
+            encoderDrive(1, 40, 40, 1); // move forwared
+            encoderDrive(1, -20, 20, 1); // 180 turn
 
-        encoderDrive(1, 12, 12);
+            encoderDrive(1, 40, 40, 1); // move forward
+            encoderDrive(1, 30, 15, 1); // turn right
+            encoderDrive(1, 3, 3, 1); // move forward
+            encoderDrive(1, 15, 30, 1); // turn right
+            encoderDrive(1, 40, 40, 1); // move forward
+            encoderDrive(1, -20, 20, 1); // 180 turn
+            encoderDrive(1, 40, 40, 1); // move forward
+            encoderDrive(1, 15, 30, 1); // turn right
+            encoderDrive(1, 3, 3, 1); // move forward
+            encoderDrive(1, 30, 15, 1); // turn right
+            encoderDrive(1, 40, 40, 1); // move forward
 
-        telemetry.addData("Path", "Complete");
-        telemetry.update();
-        sleep(1000);  // pause to display final telemetry message.
+            // hang the specimens
+            encoderDrive(1, 12, 12, 1); // turn right
+            encoderDrive(1, 12, 12, 1); // move forward
+
+            // park hehehe
+            telemetry.addData("Path", "Complete");
+            telemetry.update();
+            sleep(1000);  // pause to display final telemetry message.
+
+//        park hopefully
+        encoderDrive(1, 40, 40, 1);
     }
 
     /*
