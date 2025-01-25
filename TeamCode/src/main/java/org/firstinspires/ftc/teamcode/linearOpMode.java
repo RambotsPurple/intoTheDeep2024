@@ -198,9 +198,9 @@ public class linearOpMode extends LinearOpMode {
       // Wrist power
       wrist1.setPosition(wristPos);
       if (gamepad2.left_trigger > 0) {
-        wristPos = Math.min(1, wristPos + 0.035);
+        wristPos = Math.min(1, wristPos + 0.045);
       } else if (gamepad2.left_bumper) {
-        wristPos = Math.max(0, wristPos - 0.035);
+        wristPos = Math.max(0, wristPos - 0.045);
       }
 
       // Power to the intake
