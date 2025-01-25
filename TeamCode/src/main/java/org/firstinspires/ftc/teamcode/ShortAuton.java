@@ -92,7 +92,7 @@ public class ShortAuton extends LinearOpMode {
 
         // Step through each leg of the path, ensuring that the OpMode has not been stopped along the way.
 
-        // Step 1:  Drive forward for 3 seconds
+        // Step 1:  Drive forward for more than 3 seconds
         frontLeftMotor.setPower(FORWARD_SPEED + 0.3);
         backLeftMotor.setPower(FORWARD_SPEED + 0.3);
         frontRightMotor.setPower(FORWARD_SPEED);
