@@ -43,9 +43,8 @@ public class FieldCentricTest extends LinearOpMode {
         IMU imu = hardwareMap.get(IMU.class, "imu");
         // Adjust the orientation parameters to match your robot
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
-        // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
+                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         imu.initialize(parameters);
 
         // initializing hardware
@@ -101,6 +100,7 @@ public class FieldCentricTest extends LinearOpMode {
         slideAbduction.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         slideExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        double initialYaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
         //wrist
         waitForStart();
@@ -108,6 +108,9 @@ public class FieldCentricTest extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
+            double currentYaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            double adjustedYaw = currentYaw - initialYaw;
+            double botHeading = adjustedYaw;
 
       /*
         GamePad Map
@@ -125,7 +128,6 @@ public class FieldCentricTest extends LinearOpMode {
             double slideAbdPower = gamepad2.right_stick_y;
 
             // drive train controls
-            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
             // Joystick inputs from the gamepad
             double y = -gamepad1.left_stick_y;  // Forward/backward movement
@@ -152,6 +154,16 @@ public class FieldCentricTest extends LinearOpMode {
             double frontRightPower = power * cos / max - turn;
             double backLeftPower = power * sin / max + turn;
             double backRightPower = power * sin / max - turn;
+
+            double leftCompensationFactor = 1.1;  // Increase this if the left side is weaker
+            double rightCompensationFactor = 1.0; // Default for right side
+
+            // Scale the strafing motors
+            frontLeftPower *= leftCompensationFactor;
+            backLeftPower *= leftCompensationFactor;
+            frontRightPower *= rightCompensationFactor;
+            backRightPower *= rightCompensationFactor;
+
 
             // Prevent motors from exceeding max power
             if ((power + Math.abs(turn)) > 1) {
