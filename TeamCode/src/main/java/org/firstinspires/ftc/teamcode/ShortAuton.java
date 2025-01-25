@@ -93,12 +93,12 @@ public class ShortAuton extends LinearOpMode {
         // Step through each leg of the path, ensuring that the OpMode has not been stopped along the way.
 
         // Step 1:  Drive forward for more than 3 seconds
-        frontLeftMotor.setPower(FORWARD_SPEED + 0.15);
-        backLeftMotor.setPower(FORWARD_SPEED + 0.15);
+        frontLeftMotor.setPower(FORWARD_SPEED + 0.05);
+        backLeftMotor.setPower(FORWARD_SPEED + 0.05);
         frontRightMotor.setPower(FORWARD_SPEED);
         backRightMotor.setPower(FORWARD_SPEED);
         runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 4.0)) {
+        while (opModeIsActive() && (runtime.seconds() < 8)) {
             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
             telemetry.update();
         }
@@ -112,6 +112,7 @@ public class ShortAuton extends LinearOpMode {
         backLeftMotor.setPower(0);
 
         telemetry.addData("Path", "Complete");
+        telemetry.addData("time4", runtime.seconds());
         telemetry.update();
         sleep(1000);
     }
