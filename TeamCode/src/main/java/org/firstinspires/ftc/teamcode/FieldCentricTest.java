@@ -150,7 +150,8 @@ public class FieldCentricTest extends LinearOpMode {
             double max = Math.max(Math.abs(sin), Math.abs(cos));
 
             // Wheel power calculations
-            double frontLeftPower = power * cos / max + turn;
+            double frontLeftPower = power * cos / max +
+                     turn;
             double frontRightPower = power * cos / max - turn;
             double backLeftPower = power * sin / max + turn;
             double backRightPower = power * sin / max - turn;

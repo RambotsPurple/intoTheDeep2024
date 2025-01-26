@@ -16,10 +16,9 @@ public class linearOpMode extends LinearOpMode {
   private DcMotor slideAbduction = null;
   private DcMotor slideAbduction2 = null;
   private Servo  wrist1 = null;
-  private Servo  wrist2 = null;
   private Servo leftIntake = null;
   private Servo rightIntake = null;
-  private double intakePower = 0;
+  private double intakePower = 1;
 
   static final double COUNTS_PER_MOTOR_REV = 537.6; // eg: TETRIX Motor Encoder
 
@@ -48,7 +47,6 @@ public class linearOpMode extends LinearOpMode {
     // DcMotors for Linear slide
     slideExtension = hardwareMap.get(DcMotor.class, "slideExtend");
     wrist1 = hardwareMap.get(Servo.class, "wrist1");
-    wrist2 = hardwareMap.get(Servo.class, "wrist2");
     slideAbduction = hardwareMap.get(DcMotor.class, "slideAbd");
     slideAbduction2 = hardwareMap.get(DcMotor.class, "slideAbd2");
 
@@ -91,6 +89,9 @@ public class linearOpMode extends LinearOpMode {
     slideExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     slideExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+
+//    leftIntake.setPosition(0);
+//    rightIntake.setPosition(0);
     //wrist
     waitForStart();
 
