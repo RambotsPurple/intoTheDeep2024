@@ -13,6 +13,7 @@ public class encodertest extends LinearOpMode {
     private DcMotor frontLeftMotor = null, backLeftMotor = null;
     private DcMotor frontRightMotor = null, backRightMotor = null;
 
+
     private DcMotor slideExtension = null;
     private DcMotor slideAbduction = null;
     private DcMotor slideAbduction2 = null;
@@ -32,6 +33,7 @@ public class encodertest extends LinearOpMode {
         frontRightMotor = hardwareMap.get(DcMotor.class, "rightFront");
         backLeftMotor = hardwareMap.get(DcMotor.class, "leftBack");
         backRightMotor = hardwareMap.get(DcMotor.class, "rightBack");
+
 
         slideExtension = hardwareMap.get(DcMotor.class, "slideExtend");
         wrist1 = hardwareMap.get(Servo.class, "wrist1");

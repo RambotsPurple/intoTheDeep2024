@@ -15,6 +15,13 @@ public class linearOpMode extends LinearOpMode {
   private DcMotor slideExtension = null;
   private DcMotor slideAbduction = null;
   private DcMotor slideAbduction2 = null;
+
+  private DcMotor Catch = null;
+
+  private Servo CatchEx = null;
+
+  private  Servo CatchClaw2 = null;
+  private  Servo CatchClaw1 = null;
   private Servo  wrist1 = null;
   private Servo leftIntake = null;
   private Servo rightIntake = null;
@@ -43,6 +50,13 @@ public class linearOpMode extends LinearOpMode {
     frontRightMotor = hardwareMap.get(DcMotor.class, "rightFront");
     backLeftMotor = hardwareMap.get(DcMotor.class, "leftBack");
     backRightMotor = hardwareMap.get(DcMotor.class, "rightBack");
+
+//    Dc motor for catch
+
+    Catch = hardwareMap.get(DcMotor.class, "catch");
+    CatchEx = hardwareMap.get(Servo.class,"catchEx");
+    CatchClaw1 = hardwareMap.get(Servo.class, "catchClaw1");
+    CatchClaw2 = hardwareMap.get(Servo.class, "catchClaw2");
 
     // DcMotors for Linear slide
     slideExtension = hardwareMap.get(DcMotor.class, "slideExtend");
@@ -202,6 +216,10 @@ public class linearOpMode extends LinearOpMode {
         wristPos = Math.min(1, wristPos + 0.020);
       } else if (gamepad2.left_bumper) {
         wristPos = Math.max(0, wristPos - 0.020);
+      }
+
+      if(gamepad2.dpad_left){
+
       }
 
       // Power to the intake
