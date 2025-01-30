@@ -33,6 +33,8 @@ public class linearOpMode extends LinearOpMode {
   final private int ABD_DOWN = 0;
   private boolean runningPreset = false;
 
+  private double catchintake =1;
+
 
   // THE SENSOR
   private ColorSensor sensor  = null;
@@ -227,13 +229,13 @@ public class linearOpMode extends LinearOpMode {
       }
 
       //catch power
-      if (gamepad2.dpad_right && intakeReleased) {
-        intakePower = 1 - intakePower;
-        intakeReleased = false;
+      if (gamepad2.dpad_right && CatchRelease) {
+        catchintake = 1 - catchintake;
+        CatchRelease = false;
       }
 
       if(!gamepad2.dpad_right){
-        intakeReleased = true;
+        CatchRelease = true;
 
       }
 
