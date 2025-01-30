@@ -51,6 +51,11 @@ public class linearOpMode extends LinearOpMode {
     backLeftMotor = hardwareMap.get(DcMotor.class, "leftBack");
     backRightMotor = hardwareMap.get(DcMotor.class, "rightBack");
 
+    frontLeftMotor.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+    frontRightMotor.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+    backLeftMotor.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+    backRightMotor.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+
 //    Dc motor for catch
 
     Catch = hardwareMap.get(DcMotor.class, "catch");
@@ -86,6 +91,9 @@ public class linearOpMode extends LinearOpMode {
 
     // intake
     boolean intakeReleased = true;
+
+    //catch intake
+    boolean CatchRelease = true;
 
     // linear slide
     slideExtension.setDirection(DcMotor.Direction.FORWARD);
@@ -218,7 +226,14 @@ public class linearOpMode extends LinearOpMode {
         wristPos = Math.max(0, wristPos - 0.020);
       }
 
-      if(gamepad2.dpad_left){
+      //catch power
+      if (gamepad2.dpad_right && intakeReleased) {
+        intakePower = 1 - intakePower;
+        intakeReleased = false;
+      }
+
+      if(!gamepad2.dpad_right){
+        intakeReleased = true;
 
       }
 
