@@ -25,12 +25,14 @@ public class SparkfunAuto extends LinearOpMode {
     public class Lift {
         private DcMotorEx lift;
 
+        // component
         public Lift(HardwareMap hardwareMap) {
             lift = hardwareMap.get(DcMotorEx.class, "liftMotor");
             lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             lift.setDirection(DcMotorSimple.Direction.FORWARD);
         }
 
+        // raises lift
         public class LiftUp implements Action {
             private boolean initialized = false;
 
@@ -51,10 +53,14 @@ public class SparkfunAuto extends LinearOpMode {
                 }
             }
         }
+
+        // function for raising lift
         public Action liftUp() {
             return new LiftUp();
         }
 
+
+        // lower lift
         public class LiftDown implements Action {
             private boolean initialized = false;
 
@@ -75,11 +81,14 @@ public class SparkfunAuto extends LinearOpMode {
                 }
             }
         }
+
+        // lower lift
         public Action liftDown(){
             return new LiftDown();
         }
     }
 
+    // Claw component
     public class Claw {
         private Servo claw;
 
