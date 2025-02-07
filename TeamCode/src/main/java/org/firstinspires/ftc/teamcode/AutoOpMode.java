@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 
@@ -38,21 +39,19 @@ import org.openftc.easyopencv.OpenCvPipeline;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Robot: Auto Drive By Encoder", group="Robot")
+@Autonomous(name="Main", group="Robot")
 public class AutoOpMode extends LinearOpMode {
 
     /* Declare OpMode members. */
     private DcMotor frontLeftMotor = null, backLeftMotor = null;
     private DcMotor frontRightMotor = null, backRightMotor = null;
-
-    // slide and intake
     private DcMotor slideExtension = null;
     private DcMotor slideAbduction = null;
     private DcMotor slideAbduction2 = null;
-    private DcMotor wrist = null;
-    private CRServo leftIntake = null;
-    private CRServo rightIntake = null;
-    private double intakePower = 0;
+    private Servo  wrist1 = null;
+    private Servo leftIntake = null;
+    private Servo rightIntake = null;
+    private double intakePower = 1;
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -62,7 +61,7 @@ public class AutoOpMode extends LinearOpMode {
     // For example, use a value of 2.0 for a 12-tooth spur gear driving a 24-tooth spur gear.
     // This is gearing DOWN for less speed and more torque.
     // For gearing UP, use a gear ratio less than 1.0. Note this will affect the direction of wheel rotation.
-    static final double COUNTS_PER_MOTOR_REV = 537.6; // eg: TETRIX Motor Encoder
+    static final double COUNTS_PER_MOTOR_REV = 134.4; // eg: TETRIX Motor Encoder
     static final double DRIVE_GEAR_REDUCTION = 1.0; // No External Gearing.
     static final double WHEEL_DIAMETER_INCHES = 4.0; // For figuring circumference
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * 3.1415);
@@ -72,8 +71,7 @@ public class AutoOpMode extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
-        // Initialize the drive system variables.
+        // Drive Train motor
         frontLeftMotor = hardwareMap.get(DcMotor.class, "leftFront");
         frontRightMotor = hardwareMap.get(DcMotor.class, "rightFront");
         backLeftMotor = hardwareMap.get(DcMotor.class, "leftBack");
@@ -81,20 +79,48 @@ public class AutoOpMode extends LinearOpMode {
 
         // DcMotors for Linear slide
         slideExtension = hardwareMap.get(DcMotor.class, "slideExtend");
+        wrist1 = hardwareMap.get(Servo.class, "wrist1");
         slideAbduction = hardwareMap.get(DcMotor.class, "slideAbd");
         slideAbduction2 = hardwareMap.get(DcMotor.class, "slideAbd2");
 
-        wrist = hardwareMap.get(DcMotor.class, "wrist");
-
-        wrist.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
         slideExtension.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
         slideAbduction.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
         slideAbduction2.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
 
+
+
         // Takers
-        leftIntake = hardwareMap.get(CRServo.class, "l_intake");
-        rightIntake = hardwareMap.get(CRServo.class, "r_intake");
+        leftIntake = hardwareMap.get(Servo.class, "l_intake");
+        rightIntake = hardwareMap.get(Servo.class, "r_intake");
+
+        // MaybeIntake = hardwareMap.get(DcMotor.class, "intake");
+        // Setting the direction for the motor on where to rotate
+
+        // Orientation for drivetrain
+        frontLeftMotor.setDirection(DcMotor.Direction.FORWARD);
+        frontRightMotor.setDirection(DcMotor.Direction.REVERSE);
+        backLeftMotor.setDirection(DcMotor.Direction.FORWARD);
+        backRightMotor.setDirection(DcMotor.Direction.REVERSE);
+
+        // intake
         boolean intakeReleased = true;
+
+        // linear slide
+        slideExtension.setDirection(DcMotor.Direction.FORWARD);
+        slideAbduction.setDirection(DcMotor.Direction.FORWARD);
+        slideAbduction2.setDirection(DcMotor.Direction.REVERSE);
+
+        // normalize motor positions
+        double normalizedAbdPos1 = (double)slideAbduction.getCurrentPosition() / COUNTS_PER_MOTOR_REV; // TODO test
+
+        // ENCODERS
+        slideAbduction2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideAbduction2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slideAbduction.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideAbduction.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slideExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 //
 //        // Initialize webcam
 //        webcam = hardwareMap.get(OpenCvCamera.class, "Webcam 1");
@@ -125,14 +151,12 @@ public class AutoOpMode extends LinearOpMode {
         slideAbduction.setDirection(DcMotor.Direction.FORWARD);
         slideAbduction2.setDirection(DcMotor.Direction.FORWARD);
 
-        wrist.setDirection(DcMotor.Direction.FORWARD);
 
         frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        wrist.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // sigma
         slideExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -144,7 +168,6 @@ public class AutoOpMode extends LinearOpMode {
         backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        wrist.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         // this is why oop should be used
@@ -180,8 +203,10 @@ public class AutoOpMode extends LinearOpMode {
 ////        encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
 ////        encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
 ////        encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
-//        // move to submersible from start
-//        encoderDrive(1, 18.5, 18.5);
+        // move to submersible from start
+
+        wrist1.setPosition(1);
+        encoderraise(1, 24, 24);
 //        // pick up scoring element from spike mark 1
 //        encoderDrive(1, 32, 44); // approx 38 inch movement
 //        // pushing 3 elements to the specimen station
@@ -216,8 +241,8 @@ public class AutoOpMode extends LinearOpMode {
 
 //        park hopefully
         sleep(2200);
-        encoderDrive(1, 35, 15, 1);
-        encoderDrive(1, 30, 30, 1);
+//        encoderDrive(1, 35, 15, 1);
+//        encoderDrive(1, 30, 30, 1);
         // park hehehe
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -246,6 +271,8 @@ public class AutoOpMode extends LinearOpMode {
             newLeftBackTarget = backLeftMotor.getCurrentPosition() + (int)(leftInches * COUNTS_PER_INCH);
             newRightFrontTarget = frontRightMotor.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
             newRightBackTarget = backRightMotor.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
+
+
             frontLeftMotor.setTargetPosition(newLeftFrontTarget);
             backLeftMotor.setTargetPosition(newLeftBackTarget);
             frontRightMotor.setTargetPosition(newRightFrontTarget);
@@ -293,12 +320,22 @@ public class AutoOpMode extends LinearOpMode {
             frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+
+
             sleep(250);   // optional pause after each move.
         }
     }
 
     // overloaded method for NO TIMEOUT CUZ ITS USELESS
-    public void encoderDrive(double speed, double leftInches, double rightInches) {
+    public void encoderraise(double speed, double leftInches, double rightInches) {
         encoderDrive(speed, leftInches, rightInches, 60);
+
+        slideExtension.setPower(0);
+        slideAbduction.setPower(0);
+        slideAbduction2.setPower(0);
+
+        slideAbduction.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slideAbduction2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slideExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 }

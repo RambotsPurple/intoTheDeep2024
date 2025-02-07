@@ -1,21 +1,17 @@
 package org.firstinspires.ftc.teamcode;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-
-@TeleOp(name = "RambotsPurpleTeleOp")
-public class testtua extends LinearOpMode {
-    public static  IMU imu;
-    public static double direction;
-    public static double lastAngles;
+@TeleOp(name = "FIELDCETNRICTEST")
+public class FieldCentricTest extends LinearOpMode {
     private DcMotor frontLeftMotor = null, backLeftMotor = null;
     private DcMotor frontRightMotor = null, backRightMotor = null;
     private DcMotor slideExtension = null;
@@ -25,6 +21,7 @@ public class testtua extends LinearOpMode {
     private Servo  wrist2 = null;
     private Servo leftIntake = null;
     private Servo rightIntake = null;
+    private double intakePower = 0;
 
     static final double COUNTS_PER_MOTOR_REV = 537.6; // eg: TETRIX Motor Encoder
 
@@ -39,13 +36,16 @@ public class testtua extends LinearOpMode {
     // wrist
     private double wristPos = 0;
 
-
-
     @Override
     public void runOpMode() {
 
-
-
+//        Retrieve the IMU from the hardware map
+        IMU imu = hardwareMap.get(IMU.class, "imu");
+        // Adjust the orientation parameters to match your robot
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+        imu.initialize(parameters);
 
         // initializing hardware
 
@@ -100,16 +100,17 @@ public class testtua extends LinearOpMode {
         slideAbduction.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         slideExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        double initialYaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
-        leftIntake.setPosition(0);  // Set to closed position (adjust as needed)
-        rightIntake.setPosition(1); // Set to closed position (adjust as needed)
         //wrist
         waitForStart();
 
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-
+            double currentYaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            double adjustedYaw = currentYaw - initialYaw;
+            double botHeading = adjustedYaw;
 
       /*
         GamePad Map
@@ -121,65 +122,80 @@ public class testtua extends LinearOpMode {
           left stick x = slide extension
           right stick y = slide abduction
        */
-            double intakePower = .25;
 
             // linear slide controls
             double slideExtendPower = gamepad2.left_stick_y;
             double slideAbdPower = gamepad2.right_stick_y;
 
             // drive train controls
-            double y = -gamepad1.left_stick_y;
-            double x = gamepad1.left_stick_x * 1.1;
-            double turn = gamepad1.right_stick_x;
 
-            // input: theta and power
-            // theta is where we want the direction the robot to go
-            // power is (-1) to 1 scale where increasing power will cause the engines to go faster
-            double theta = Math.atan2(y, x);
-            double power = Math.hypot(x, y);
-            double sin = Math.sin(theta - Math.PI / 4);
-            double cos = Math.cos(theta - Math.PI / 4);
-            // max variable allows to use the motors at its max power with out disabling it
+            // Joystick inputs from the gamepad
+            double y = -gamepad1.left_stick_y;  // Forward/backward movement
+            double x = gamepad1.left_stick_x;  // Left/right movement
+            double turn = gamepad1.right_stick_x;  // Rotation (left/right turn)
+
+            // Convert joystick inputs into field-relative values
+            // Rotate the joystick inputs based on the robot's heading
+            double tempX = x * Math.cos(botHeading) + y * Math.sin(botHeading);
+            double tempY = -x * Math.sin(botHeading) + y * Math.cos(botHeading);
+
+            // The power is the magnitude of the movement
+            double power = Math.hypot(tempX, tempY);
+
+            // Calculate the angles for each wheel (field-centric)
+            double sin = Math.sin(Math.atan2(tempY, tempX) - Math.PI / 4);
+            double cos = Math.cos(Math.atan2(tempY, tempX) - Math.PI / 4);
+
+            // Normalize the wheel powers to prevent them from exceeding max power
             double max = Math.max(Math.abs(sin), Math.abs(cos));
 
-            double frontLeftPower = power * cos / max + turn;
+            // Wheel power calculations
+            double frontLeftPower = power * cos / max +
+                     turn;
             double frontRightPower = power * cos / max - turn;
             double backLeftPower = power * sin / max + turn;
             double backRightPower = power * sin / max - turn;
 
-            // Prevents the motors exceeding max power thus motors will not seize and act sporadically
+            double leftCompensationFactor = 1.1;  // Increase this if the left side is weaker
+            double rightCompensationFactor = 1.0; // Default for right side
+
+            // Scale the strafing motors
+            frontLeftPower *= leftCompensationFactor;
+            backLeftPower *= leftCompensationFactor;
+            frontRightPower *= rightCompensationFactor;
+            backRightPower *= rightCompensationFactor;
+
+
+            // Prevent motors from exceeding max power
             if ((power + Math.abs(turn)) > 1) {
-                frontLeftPower /= power + turn;
-                frontRightPower /= power - turn;
-                backLeftPower /= power + turn;
-                backRightPower /= power - turn;
+                frontLeftPower /= (power + Math.abs(turn));
+                frontRightPower /= (power + Math.abs(turn));
+                backLeftPower /= (power + Math.abs(turn));
+                backRightPower /= (power + Math.abs(turn));
             }
 
-            if(gamepad2.a){
-                intakePower = 1;
-            }else if(gamepad2.b){
-                intakePower = 0;
+            // Set the motor powers
+            frontLeftMotor.setPower(frontLeftPower);
+            backLeftMotor.setPower(backLeftPower);
+            frontRightMotor.setPower(frontRightPower);
+            backRightMotor.setPower(backRightPower);
+
+
+            if (gamepad2.a && intakeReleased) {
+                intakePower = 1 - intakePower;
+                intakeReleased = false;
+            }
+            if (gamepad2.b && intakeReleased) {
+                intakePower = Math.max(0, intakePower - 0.1);
+                intakeReleased = false;
+            } else if (gamepad2.y && intakeReleased) {
+                intakePower = Math.min(1, intakePower + 0.1);
+                intakeReleased = false;
             }
 
-            // if A on the controller is pressed it will check if the claw is closed
-            // HOTFIX: A is open, B is close
-//            if (gamepad2.a && intakeReleased) {
-//                intakePower = (intakePower == 1 ? 0 : 1);
-//                intakeReleased = false;
-//            }
-//
-//            // increment intake pos
-//            else if (gamepad2.b && intakeReleased) {
-//                intakePower = Math.max(intakePower, intakePower - 0.1);
-//                intakeReleased = false;
-//            } else if (gamepad2.y && intakeReleased) {
-//                intakePower = Math.min(intakePower, intakePower + 0.1);
-//                intakeReleased = false;
-//            }
-//
-//            if(!gamepad2.a && !gamepad2.b) {
-//                intakeReleased = true;
-//            }
+            if(!gamepad2.a && !gamepad2.b && !gamepad2.y) {
+                intakeReleased = true;
+            }
 
             // presets
             if (gamepad2.dpad_up && !runningPreset) {
@@ -218,21 +234,18 @@ public class testtua extends LinearOpMode {
             } // if else
 
             slideExtension.setPower(slideExtendPower);
-            slideAbduction.setPower(slideAbdPower);
-            slideAbduction2.setPower(slideAbdPower);
-//      slideExtension.setPower(-slideExtendPower);
 
             // Wrist power
             wrist1.setPosition(wristPos);
             if (gamepad2.left_trigger > 0) {
-                wristPos = Math.min(1, wristPos + 0.035);
+                wristPos = Math.min(1, wristPos + 0.020);
             } else if (gamepad2.left_bumper) {
-                wristPos = Math.max(0, wristPos - 0.035);
+                wristPos = Math.max(0, wristPos - 0.020);
             }
 
             // Power to the intake
             leftIntake.setPosition(intakePower);
-            rightIntake.setPosition(-intakePower);
+            rightIntake.setPosition(1 - intakePower);
 
             // Telemetry
             telemetry.addData("RUNNING PRESET:", runningPreset);
@@ -241,7 +254,7 @@ public class testtua extends LinearOpMode {
             telemetry.addData("Abd 1 position:", slideAbduction.getCurrentPosition());
             telemetry.addData("Abd 2 position:", slideAbduction2.getCurrentPosition());
             telemetry.addData("Ext position:", slideExtension.getCurrentPosition());
-            telemetry.addData("wrist pos:", wristPos);
+            telemetry.addData("wrist pos:", wrist1);
             telemetry.addData("X", x);
             telemetry.addData("Y", y);
             telemetry.addData("Alpha", sensor.alpha());

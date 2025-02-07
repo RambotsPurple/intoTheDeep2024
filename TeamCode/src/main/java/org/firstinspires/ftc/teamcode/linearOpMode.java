@@ -15,11 +15,12 @@ public class linearOpMode extends LinearOpMode {
   private DcMotor slideExtension = null;
   private DcMotor slideAbduction = null;
   private DcMotor slideAbduction2 = null;
+
+
   private Servo  wrist1 = null;
   private Servo  wrist2 = null;
-  private Servo leftIntake = null;
-  private Servo rightIntake = null;
-  private double intakePower = 0;
+  private Servo intake = null;
+  private double intakePower = .7;
 
   static final double COUNTS_PER_MOTOR_REV = 537.6; // eg: TETRIX Motor Encoder
 
@@ -33,9 +34,13 @@ public class linearOpMode extends LinearOpMode {
 
   // wrist
   private double wristPos = 0;
+  private double wrist2Pos = 0;
+
+
 
   @Override
   public void runOpMode() {
+
 
     // initializing hardware
 
@@ -45,10 +50,15 @@ public class linearOpMode extends LinearOpMode {
     backLeftMotor = hardwareMap.get(DcMotor.class, "leftBack");
     backRightMotor = hardwareMap.get(DcMotor.class, "rightBack");
 
-    // DcMotors for Linear slide
+    frontLeftMotor.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+    frontRightMotor.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+    backLeftMotor.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+    backRightMotor.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+
+// DcMotors for Linear slide
     slideExtension = hardwareMap.get(DcMotor.class, "slideExtend");
     wrist1 = hardwareMap.get(Servo.class, "wrist1");
-    wrist2 = hardwareMap.get(Servo.class, "wrist2");
+    wrist2 = hardwareMap.get(Servo.class,"wrist2");
     slideAbduction = hardwareMap.get(DcMotor.class, "slideAbd");
     slideAbduction2 = hardwareMap.get(DcMotor.class, "slideAbd2");
 
@@ -59,8 +69,7 @@ public class linearOpMode extends LinearOpMode {
 
 
     // Takers
-    leftIntake = hardwareMap.get(Servo.class, "l_intake");
-    rightIntake = hardwareMap.get(Servo.class, "r_intake");
+    intake = hardwareMap.get(Servo.class, "intake");
     sensor = hardwareMap.get(ColorSensor.class, "sensor");
 
     // MaybeIntake = hardwareMap.get(DcMotor.class, "intake");
@@ -74,6 +83,9 @@ public class linearOpMode extends LinearOpMode {
 
     // intake
     boolean intakeReleased = true;
+
+    //catch intake
+    boolean CatchRelease = true;
 
     // linear slide
     slideExtension.setDirection(DcMotor.Direction.FORWARD);
@@ -91,6 +103,9 @@ public class linearOpMode extends LinearOpMode {
     slideExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     slideExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+
+//    leftIntake.setPosition(0);
+//    rightIntake.setPosition(0);
     //wrist
     waitForStart();
 
@@ -110,6 +125,8 @@ public class linearOpMode extends LinearOpMode {
        */
 
       // linear slide controls
+
+
       double slideExtendPower = gamepad2.left_stick_y;
       double slideAbdPower = gamepad2.right_stick_y;
 
@@ -141,17 +158,16 @@ public class linearOpMode extends LinearOpMode {
         backRightPower /= power - turn;
       }
 
-      if(intakeReleased) {
-        if (gamepad2.a) {
-          intakePower = (intakePower == 1 ? 0 : 1);
-          intakeReleased = false;
-        } else if (gamepad2.b) {
-          intakePower = Math.max(intakePower, intakePower - 0.1);
-          intakeReleased = false;
-        } else if (gamepad2.y) {
-          intakePower = Math.min(intakePower, intakePower + 0.1);
-          intakeReleased = false;
-        }
+      if (gamepad2.a && intakeReleased) {
+        intakePower = .45 - intakePower;
+        intakeReleased = false;
+      }
+      if (gamepad2.b && intakeReleased) {
+        intakePower = Math.max(0, intakePower - 0.1);
+        intakeReleased = false;
+      } else if (gamepad2.y && intakeReleased) {
+        intakePower = Math.min(1, intakePower + 0.1);
+        intakeReleased = false;
       }
 
       if(!gamepad2.a && !gamepad2.b && !gamepad2.y) {
@@ -175,7 +191,7 @@ public class linearOpMode extends LinearOpMode {
       }
 
       if (runningPreset && slideAbduction.getCurrentPosition() > slideAbduction.getTargetPosition() - 5 && slideAbduction.getCurrentPosition() < slideAbduction.getTargetPosition() + 5) {
-          runningPreset = false;
+        runningPreset = false;
       }
 
       // Power to the wheels
@@ -197,16 +213,25 @@ public class linearOpMode extends LinearOpMode {
       slideExtension.setPower(slideExtendPower);
 
       // Wrist power
-      wrist1.setPosition(wristPos);
       if (gamepad2.left_trigger > 0) {
-        wristPos = Math.min(1, wristPos + 0.045);
+        wristPos = Math.min(1, wristPos + 0.020);
       } else if (gamepad2.left_bumper) {
-        wristPos = Math.max(0, wristPos - 0.045);
+        wristPos = Math.max(0, wristPos - 0.020);
       }
 
+      if (gamepad2.right_trigger > 0) {
+        wrist2Pos = Math.min(1, wrist2Pos + 0.020);
+      } else if (gamepad2.right_bumper) {
+        wrist2Pos = Math.max(0, wrist2Pos - 0.020);
+      }
+
+      wrist1.setPosition(wristPos);
+      wrist2.setPosition(wrist2Pos);
+
+
       // Power to the intake
-      leftIntake.setPosition(intakePower);
-      rightIntake.setPosition(1 - intakePower);
+      intake.setPosition(intakePower);
+
 
       // Telemetry
       telemetry.addData("RUNNING PRESET:", runningPreset);
