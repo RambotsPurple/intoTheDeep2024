@@ -10,11 +10,11 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 
 @TeleOp(name = "RambotsPurpleTeleOp")
 public class linearOpMode extends LinearOpMode {
-  private DcMotor frontLeftMotor = null, backLeftMotor = null;
-  private DcMotor frontRightMotor = null, backRightMotor = null;
-  private DcMotor slideExtension = null;
-  private DcMotor slideAbduction = null;
-  private DcMotor slideAbduction2 = null;
+  private DcMotor frontLeft = null, rearLeft = null;
+  private DcMotor frontRight = null, rearRight = null;
+  private DcMotor CongislideExtension = null;
+  private DcMotor arm1 = null;
+  private DcMotor arm2 = null;
 
 
   private Servo  wrist1 = null;
@@ -45,26 +45,26 @@ public class linearOpMode extends LinearOpMode {
     // initializing hardware
 
     // Drive Train motor
-    frontLeftMotor = hardwareMap.get(DcMotor.class, "leftFront");
-    frontRightMotor = hardwareMap.get(DcMotor.class, "rightFront");
-    backLeftMotor = hardwareMap.get(DcMotor.class, "leftBack");
-    backRightMotor = hardwareMap.get(DcMotor.class, "rightBack");
+    frontLeft = hardwareMap.get(DcMotor.class, "leftFront");
+    frontRight = hardwareMap.get(DcMotor.class, "rightFront");
+    rearLeft = hardwareMap.get(DcMotor.class, "leftBack");
+    rearRight = hardwareMap.get(DcMotor.class, "rightBack");
 
-    frontLeftMotor.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-    frontRightMotor.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-    backLeftMotor.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-    backRightMotor.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+    frontLeft.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+    frontRight.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+    rearLeft.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+    rearRight.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
 
 // DcMotors for Linear slide
     slideExtension = hardwareMap.get(DcMotor.class, "slideExtend");
     wrist1 = hardwareMap.get(Servo.class, "wrist1");
     wrist2 = hardwareMap.get(Servo.class,"wrist2");
-    slideAbduction = hardwareMap.get(DcMotor.class, "slideAbd");
-    slideAbduction2 = hardwareMap.get(DcMotor.class, "slideAbd2");
+    arm1 = hardwareMap.get(DcMotor.class, "slideAbd");
+    arm2 = hardwareMap.get(DcMotor.class, "slideAbd2");
 
     slideExtension.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-    slideAbduction.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-    slideAbduction2.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+    arm1.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
+    arm2.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
 
 
 
@@ -76,10 +76,10 @@ public class linearOpMode extends LinearOpMode {
     // Setting the direction for the motor on where to rotate
 
     // Orientation for drivetrain
-    frontLeftMotor.setDirection(DcMotor.Direction.FORWARD);
-    frontRightMotor.setDirection(DcMotor.Direction.REVERSE);
-    backLeftMotor.setDirection(DcMotor.Direction.FORWARD);
-    backRightMotor.setDirection(DcMotor.Direction.REVERSE);
+    frontLeft.setDirection(DcMotor.Direction.FORWARD);
+    frontRight.setDirection(DcMotor.Direction.REVERSE);
+    rearLeft.setDirection(DcMotor.Direction.FORWARD);
+    rearRight.setDirection(DcMotor.Direction.REVERSE);
 
     // intake
     boolean intakeReleased = true;
@@ -89,17 +89,17 @@ public class linearOpMode extends LinearOpMode {
 
     // linear slide
     slideExtension.setDirection(DcMotor.Direction.FORWARD);
-    slideAbduction.setDirection(DcMotor.Direction.FORWARD);
-    slideAbduction2.setDirection(DcMotor.Direction.REVERSE);
+    arm1.setDirection(DcMotor.Direction.FORWARD);
+    arm2.setDirection(DcMotor.Direction.REVERSE);
 
     // normalize motor positions
-    double normalizedAbdPos1 = (double)slideAbduction.getCurrentPosition() / COUNTS_PER_MOTOR_REV; // TODO test
+    double normalizedAbdPos1 = (double)arm1.getCurrentPosition() / COUNTS_PER_MOTOR_REV; // TODO test
 
     // ENCODERS
-    slideAbduction2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    slideAbduction2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    slideAbduction.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    slideAbduction.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    arm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    arm2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    arm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    arm1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     slideExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     slideExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -147,15 +147,15 @@ public class linearOpMode extends LinearOpMode {
 
       double frontLeftPower = power * cos / max + turn;
       double frontRightPower = power * cos / max - turn;
-      double backLeftPower = power * sin / max + turn;
-      double backRightPower = power * sin / max - turn;
+      double rearLeftPower = power * sin / max + turn;
+      double rearRightPower = power * sin / max - turn;
 
       // Prevents the motors exceeding max power thus motors will not seize and act sporadically
       if ((power + Math.abs(turn)) > 1) {
         frontLeftPower /= power + turn;
         frontRightPower /= power - turn;
-        backLeftPower /= power + turn;
-        backRightPower /= power - turn;
+        rearLeftPower /= power + turn;
+        rearRightPower /= power - turn;
       }
 
       if (gamepad2.a && intakeReleased) {
@@ -177,12 +177,12 @@ public class linearOpMode extends LinearOpMode {
       // presets
       if (gamepad2.dpad_up && !runningPreset) {
         runningPreset = true;
-        slideAbduction.setTargetPosition(ABD_TO_RUNG);
-        slideAbduction2.setTargetPosition(ABD_TO_RUNG);
+        arm1.setTargetPosition(ABD_TO_RUNG);
+        arm2.setTargetPosition(ABD_TO_RUNG);
       } else if (gamepad2.dpad_down && !runningPreset) {
         runningPreset = true;
-        slideAbduction.setTargetPosition(ABD_DOWN);
-        slideAbduction2.setTargetPosition(ABD_DOWN);
+        arm1.setTargetPosition(ABD_DOWN);
+        arm2.setTargetPosition(ABD_DOWN);
       } // if
 
       // STOP ALL PRESETS
@@ -190,24 +190,24 @@ public class linearOpMode extends LinearOpMode {
         runningPreset = false;
       }
 
-      if (runningPreset && slideAbduction.getCurrentPosition() > slideAbduction.getTargetPosition() - 5 && slideAbduction.getCurrentPosition() < slideAbduction.getTargetPosition() + 5) {
+      if (runningPreset && arm1.getCurrentPosition() > arm1.getTargetPosition() - 5 && arm1.getCurrentPosition() < arm1.getTargetPosition() + 5) {
         runningPreset = false;
       }
 
       // Power to the wheels
-      frontLeftMotor.setPower(frontLeftPower);
-      backLeftMotor.setPower(backLeftPower);
-      frontRightMotor.setPower(frontRightPower);
-      backRightMotor.setPower(backRightPower);
+      frontLeft.setPower(frontLeftPower);
+      rearLeft.setPower(rearLeftPower);
+      frontRight.setPower(frontRightPower);
+      rearRight.setPower(rearRightPower);
 
       // Power to the arm
       if(runningPreset) {
         // TODO FIX
-        slideAbduction.setPower(0.5);
-        slideAbduction2.setPower(0.5);
+        arm1.setPower(0.5);
+        arm2.setPower(0.5);
       } else {
-        slideAbduction.setPower(-slideAbdPower * 0.65);
-        slideAbduction2.setPower(-slideAbdPower * 0.65);
+        arm1.setPower(-slideAbdPower * 0.65);
+        arm2.setPower(-slideAbdPower * 0.65);
       } // if else
 
       slideExtension.setPower(slideExtendPower);
@@ -235,10 +235,10 @@ public class linearOpMode extends LinearOpMode {
 
       // Telemetry
       telemetry.addData("RUNNING PRESET:", runningPreset);
-      telemetry.addData("RUNMODE:", slideAbduction.getMode());
+      telemetry.addData("RUNMODE:", arm1.getMode());
       telemetry.addData("Normalized Abd 1 position:", normalizedAbdPos1);
-      telemetry.addData("Abd 1 position:", slideAbduction.getCurrentPosition());
-      telemetry.addData("Abd 2 position:", slideAbduction2.getCurrentPosition());
+      telemetry.addData("Abd 1 position:", arm1.getCurrentPosition());
+      telemetry.addData("Abd 2 position:", arm2.getCurrentPosition());
       telemetry.addData("Ext position:", slideExtension.getCurrentPosition());
       telemetry.addData("wrist pos:", wrist1);
       telemetry.addData("X", x);
