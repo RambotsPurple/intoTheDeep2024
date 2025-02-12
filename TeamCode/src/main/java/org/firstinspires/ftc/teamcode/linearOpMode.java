@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 
 @TeleOp(name = "RambotsPurpleTeleOp")
@@ -17,6 +18,7 @@ public class linearOpMode extends LinearOpMode {
     private double wrist2Pos = 0;
     private double targetDir = 0;
     double dir;
+    int targetPos = 0;
 
     @Override
     public void runOpMode() {
@@ -48,6 +50,14 @@ public class linearOpMode extends LinearOpMode {
 
             double slideExtendPower = gamepad2.left_stick_y;
             double slideAbdPower = gamepad2.right_stick_y;
+            if (gamepad2.right_stick_y != 0) {
+                RobotConfig.arm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                targetPos = RobotConfig.arm1.getCurrentPosition();
+            } else {
+                RobotConfig.arm1.setTargetPosition(targetPos);
+                RobotConfig.arm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                RobotConfig.arm1.setVelocity(1000);
+            }
 
             if (gamepad1.right_stick_x != 0) {
                 targetDir = dir ; // TODO tune
@@ -140,6 +150,7 @@ public class linearOpMode extends LinearOpMode {
             telemetry.addData("Intake pos (right is inverse): ", intakePower);
             telemetry.addData("Slide extension power: ", slideExtendPower);
             telemetry.addData("Slide abduction power: ", slideAbdPower);
+            telemetry.addData("Target abduction pos: ", targetPos);
             telemetry.addData("Slide abduction pos: ", RobotConfig.arm1.getCurrentPosition());
             telemetry.addData("Slide extension pos: ", RobotConfig.slideExtension.getCurrentPosition());
 //      telemetry.addData("Wrist power: ", wristpower);
