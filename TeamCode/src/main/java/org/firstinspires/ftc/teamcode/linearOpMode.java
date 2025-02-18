@@ -72,7 +72,7 @@ public class linearOpMode extends LinearOpMode {
             turn = Math.min(1, turn);
             turn = Math.max(-1, turn);
 
-            RobotConfig.drive(gamepad1.left_stick_x * 1.1, -gamepad1.left_stick_y, turn, dir);
+            RobotConfig.drive(gamepad1.left_stick_x * 1.1, -gamepad1.left_stick_y, turn, 0); // no dir correction
 
             if (gamepad2.a && intakeReleased) {
                 intakePower = .45 - intakePower;
