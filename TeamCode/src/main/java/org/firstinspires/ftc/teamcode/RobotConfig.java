@@ -15,11 +15,12 @@ public class RobotConfig {
     public static DcMotorEx frontRight = null, rearRight = null;
     public static DcMotorEx slideExtension = null;
     public static DcMotorEx arm1 = null;
+
     public static DcMotorEx arm2 = null;
     public static Servo wrist1 = null;
-    public static Servo wrist2 = null;
+
     public static Servo intake = null;
-    public static ColorSensor sensor  = null;
+
 
     public static HardwareMap hardwareMap;
     static final double COUNTS_PER_MOTOR_REV = 537.6; // eg: TETRIX Motor Encoder
@@ -36,8 +37,8 @@ public class RobotConfig {
 
         imu.initialize(
                 new IMU.Parameters(new RevHubOrientationOnRobot(
-                        RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
-                        RevHubOrientationOnRobot.UsbFacingDirection.UP
+                        RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                        RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
                 ))
         );
 
@@ -55,17 +56,18 @@ public class RobotConfig {
 // DcMotors for Linear slide
         slideExtension = hardwareMap.get(DcMotorEx.class, "slideExtend");
         wrist1 = hardwareMap.get(Servo.class, "wrist1");
-        wrist2 = hardwareMap.get(Servo.class,"wrist2");
         arm1 = hardwareMap.get(DcMotorEx.class, "slideAbd");
         arm2 = hardwareMap.get(DcMotorEx.class, "slideAbd2");
 
+
         slideExtension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        arm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm2.setZeroPowerBehavior((DcMotor.ZeroPowerBehavior.BRAKE));
+
 
         // Takers
         intake = hardwareMap.get(Servo.class, "intake");
-        sensor = hardwareMap.get(ColorSensor.class, "sensor");
+
 
         // MaybeIntake = hardwareMap.get(DcMotorEx.class, "intake");
         // Setting the direction for the motor on where to rotate
@@ -85,16 +87,18 @@ public class RobotConfig {
         // linear slide
         slideExtension.setDirection(DcMotor.Direction.FORWARD);
         arm1.setDirection(DcMotor.Direction.FORWARD);
-        arm2.setDirection(DcMotor.Direction.REVERSE);
+        arm2.setDirection(DcMotor.Direction.FORWARD);
 
         // normalize motor positions
         double normalizedAbdPos1 = (double)arm1.getCurrentPosition() / COUNTS_PER_MOTOR_REV; // TODO test
 
         // ENCODERS
-        arm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
         arm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        arm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slideExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 

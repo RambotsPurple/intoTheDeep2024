@@ -53,10 +53,15 @@ public class linearOpMode extends LinearOpMode {
             if (gamepad2.right_stick_y != 0) {
                 RobotConfig.arm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 targetPos = RobotConfig.arm1.getCurrentPosition();
+                RobotConfig.arm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                targetPos = RobotConfig.arm2.getCurrentPosition();
             } else {
                 RobotConfig.arm1.setTargetPosition(targetPos);
                 RobotConfig.arm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 RobotConfig.arm1.setVelocity(1000);
+                RobotConfig.arm2.setTargetPosition(targetPos);
+                RobotConfig.arm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                RobotConfig.arm2.setVelocity(1000);
             }
 
             if (gamepad1.right_stick_x != 0) {
@@ -90,10 +95,12 @@ public class linearOpMode extends LinearOpMode {
                 runningPreset = true;
                 RobotConfig.arm1.setTargetPosition(ABD_TO_RUNG);
                 RobotConfig.arm2.setTargetPosition(ABD_TO_RUNG);
+
             } else if (gamepad2.dpad_down && !runningPreset) {
                 runningPreset = true;
                 RobotConfig.arm1.setTargetPosition(ABD_DOWN);
                 RobotConfig.arm2.setTargetPosition(ABD_DOWN);
+
             } // if
 
             // STOP ALL PRESETS
@@ -110,9 +117,11 @@ public class linearOpMode extends LinearOpMode {
                 // TODO FIX
                 RobotConfig.arm1.setPower(0.5);
                 RobotConfig.arm2.setPower(0.5);
+
             } else {
                 RobotConfig.arm1.setPower(-slideAbdPower * 0.65);
                 RobotConfig.arm2.setPower(-slideAbdPower * 0.65);
+
             } // if else
 
             RobotConfig.slideExtension.setPower(slideExtendPower);
@@ -131,7 +140,7 @@ public class linearOpMode extends LinearOpMode {
             }
 
             RobotConfig.wrist1.setPosition(wristPos);
-            RobotConfig.wrist2.setPosition(wrist2Pos);
+
 
             // Power to the intake
             RobotConfig.intake.setPosition(intakePower);
@@ -140,13 +149,10 @@ public class linearOpMode extends LinearOpMode {
             telemetry.addData("RUNNING PRESET:", runningPreset);
             telemetry.addData("RUNMODE:", RobotConfig.arm1.getMode());
             telemetry.addData("Abd 1 position:", RobotConfig.arm1.getCurrentPosition());
-            telemetry.addData("Abd 2 position:", RobotConfig.arm2.getCurrentPosition());
+
             telemetry.addData("Ext position:", RobotConfig.slideExtension.getCurrentPosition());
             telemetry.addData("wrist pos:", RobotConfig.wrist1);
-            telemetry.addData("Alpha", RobotConfig.sensor.alpha());
-            telemetry.addData("Red  ", RobotConfig.sensor.red());
-            telemetry.addData("Green", RobotConfig.sensor.green());
-            telemetry.addData("Blue ", RobotConfig.sensor.blue());
+
             telemetry.addData("Intake pos (right is inverse): ", intakePower);
             telemetry.addData("Slide extension power: ", slideExtendPower);
             telemetry.addData("Slide abduction power: ", slideAbdPower);
