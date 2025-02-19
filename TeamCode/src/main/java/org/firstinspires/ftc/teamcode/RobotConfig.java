@@ -102,10 +102,6 @@ public class RobotConfig {
         slideExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-//    leftIntake.setPosition(0);
-//    rightIntake.setPosition(0);
-        //wrist
-
         resetAngle();
     }
 
@@ -143,17 +139,18 @@ public class RobotConfig {
         // input: theta and power
         // theta is where we want the direction the robot to go
         // power is (-1) to 1 scale where increasing power will cause the engines to go faster
-        double theta = Math.atan2(y, x) - direction;
+        double theta = Math.atan2(y, x) - Math.toRadians(direction);
         double power = Math.hypot(x, y);
         double sin = Math.sin(theta - Math.PI / 4);
         double cos = Math.cos(theta - Math.PI / 4);
         // max variable allows to use the motors at its max power with out disabling it
-        double max = Math.max(Math.abs(sin), Math.abs(cos));
+        double max = Math.abs(Math.max(Math.abs(sin) + turn, Math.abs(cos) + turn));
+        max = Math.max(max, 1);
 
         double frontLeftPower = power * cos / max + turn;
-        double frontRightPower = power * cos / max - turn;
+        double frontRightPower = power * sin / max - turn;
         double rearLeftPower = power * sin / max + turn;
-        double rearRightPower = power * sin / max - turn;
+        double rearRightPower = power * cos / max - turn;
 
         // Prevents the motors exceeding max power thus motors will not seize and act sporadically
         if ((power + Math.abs(turn)) > 1) {
