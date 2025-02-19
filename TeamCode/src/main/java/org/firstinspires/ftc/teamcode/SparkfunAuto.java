@@ -11,10 +11,11 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
-
+import org.firstinspires.ftc.teamcode.RobotConfig;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -23,14 +24,16 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Autonomous(name = "Real Auton ", group = "Autonomous")
 public class SparkfunAuto extends LinearOpMode {
     public class Lift {
-        private DcMotorEx lift;
 
         // component
-        public Lift(HardwareMap hardwareMap) {
-            lift = hardwareMap.get(DcMotorEx.class, "liftMotor");
-            lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            lift.setDirection(DcMotorSimple.Direction.FORWARD);
-        }
+//        public Lift(HardwareMap hardwareMap) {
+//            arm1 = hardwareMap.get(DcMotorEx.class, "arm1");
+//            arm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            arm1.setDirection(DcMotorSimple.Direction.FORWARD);
+//
+//            arm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            arm2.setDirection(DcMotorSimple.Direction.FORWARD);
+//        }
 
         // raises lift
         public class LiftUp implements Action {
@@ -39,16 +42,18 @@ public class SparkfunAuto extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!initialized) {
-                    lift.setPower(0.8);
+                    RobotConfig.arm1.setPower(0.8);
+                    RobotConfig.arm2.setPower(0.8);
                     initialized = true;
                 }
 
-                double pos = lift.getCurrentPosition();
+                double pos = RobotConfig.arm1.getCurrentPosition();
                 packet.put("liftPos", pos);
                 if (pos < 3000.0) {
                     return true;
                 } else {
-                    lift.setPower(0);
+                    RobotConfig.arm1.setPower(0);
+                    RobotConfig.arm2.setPower(0);
                     return false;
                 }
             }
@@ -67,16 +72,18 @@ public class SparkfunAuto extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!initialized) {
-                    lift.setPower(-0.8);
+                    RobotConfig.arm1.setPower(-0.8);
+                    RobotConfig.arm2.setPower(-0.8);
                     initialized = true;
                 }
 
-                double pos = lift.getCurrentPosition();
+                double pos = RobotConfig.arm1.getCurrentPosition();
                 packet.put("liftPos", pos);
                 if (pos > 100.0) {
                     return true;
                 } else {
-                    lift.setPower(0);
+                    RobotConfig.arm1.setPower(0);
+                    RobotConfig.arm2.setPower(0);
                     return false;
                 }
             }
@@ -90,16 +97,12 @@ public class SparkfunAuto extends LinearOpMode {
 
     // Claw component
     public class Claw {
-        private Servo claw;
 
-        public Claw(HardwareMap hardwareMap) {
-            claw = hardwareMap.get(Servo.class, "claw");
-        }
 
         public class CloseClaw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                claw.setPosition(0.55);
+                RobotConfig.wrist1.setPosition(0.55);
                 return false;
             }
         }
@@ -110,7 +113,7 @@ public class SparkfunAuto extends LinearOpMode {
         public class OpenClaw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                claw.setPosition(1.0);
+                RobotConfig.wrist1.setPosition(1.0);
                 return false;
             }
         }
@@ -121,13 +124,16 @@ public class SparkfunAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        RobotConfig.initialize(hardwareMap);
+
         Pose2d initialPose = new Pose2d(11.8, 61.7, Math.toRadians(90));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
-        Claw claw = new Claw(hardwareMap);
-        Lift lift = new Lift(hardwareMap);
-
+        Claw claw = new Claw();
+        // make a Lift instance
+        Lift lift = new Lift();
         // vision here that outputs position
-        int visionOutputPosition = 1;
+
+//        @TODO trajectorty
 
         TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
                 .lineToYSplineHeading(33, Math.toRadians(0))
@@ -140,19 +146,19 @@ public class SparkfunAuto extends LinearOpMode {
                 .turn(Math.toRadians(180))
                 .lineToX(47.5)
                 .waitSeconds(3);
-        TrajectoryActionBuilder tab2 = drive.actionBuilder(initialPose)
-                .lineToY(37)
-                .setTangent(Math.toRadians(0))
-                .lineToX(18)
-                .waitSeconds(3)
-                .setTangent(Math.toRadians(0))
-                .lineToXSplineHeading(46, Math.toRadians(180))
-                .waitSeconds(3);
-        TrajectoryActionBuilder tab3 = drive.actionBuilder(initialPose)
-                .lineToYSplineHeading(33, Math.toRadians(180))
-                .waitSeconds(2)
-                .strafeTo(new Vector2d(46, 30))
-                .waitSeconds(3);
+//        TrajectoryActionBuilder tab2 = drive.actionBuilder(initialPose)
+//                .lineToY(37)
+//                .setTangent(Math.toRadians(0))
+//                .lineToX(18)
+//                .waitSeconds(3)
+//                .setTangent(Math.toRadians(0))
+//                .lineToXSplineHeading(46, Math.toRadians(180))
+//                .waitSeconds(3);
+//        TrajectoryActionBuilder tab3 = drive.actionBuilder(initialPose)
+//                .lineToYSplineHeading(33, Math.toRadians(180))
+//                .waitSeconds(2)
+//                .strafeTo(new Vector2d(46, 30))
+//                .waitSeconds(3);
         Action trajectoryActionCloseOut = tab1.endTrajectory().fresh()
                 .strafeTo(new Vector2d(48, 12))
                 .build();
@@ -161,28 +167,15 @@ public class SparkfunAuto extends LinearOpMode {
         Actions.runBlocking(claw.closeClaw());
 
 
-        while (!isStopRequested() && !opModeIsActive()) {
-            int position = visionOutputPosition;
-            telemetry.addData("Position during Init", position);
-            telemetry.update();
-        }
 
-        int startPosition = visionOutputPosition;
-        telemetry.addData("Starting Position", startPosition);
-        telemetry.update();
+
         waitForStart();
 
         if (isStopRequested()) return;
 
         Action trajectoryActionChosen;
-        if (startPosition == 1) {
-            trajectoryActionChosen = tab1.build();
-        } else if (startPosition == 2) {
-            trajectoryActionChosen = tab2.build();
-        } else {
-            trajectoryActionChosen = tab3.build();
-        }
 
+        trajectoryActionChosen = tab1.build();
         Actions.runBlocking(
                 new SequentialAction(
                         trajectoryActionChosen,
