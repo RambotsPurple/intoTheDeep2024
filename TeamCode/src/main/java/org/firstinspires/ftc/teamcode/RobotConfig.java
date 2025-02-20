@@ -28,6 +28,12 @@ public class RobotConfig {
     public static double direction;
     public static double lastAngles;
 
+    // ARM POSITIONS
+    // TODO TUNE
+    final static int ABD_SPEC = -2933;
+    final static int ABD_PICKUP = -667;
+    final static double WRIST_START = 0.16;
+    final static double WRIST_PICKUP = 0.32;
 
 
     public static void initialize(HardwareMap hw) {

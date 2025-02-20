@@ -8,13 +8,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 @TeleOp(name = "RambotsPurpleTeleOp")
 public class linearOpMode extends LinearOpMode {
 
-    private double intakePower = .7;
+    private double intakePower = 0;
     final private int ABD_TO_RUNG = 100;
     final private int ABD_DOWN = 0;
     private boolean runningPreset = false;
 
     // wrist
-    private double wristPos = 0;
+    private double wristPos = 0.16;
     private double wrist2Pos = 0;
     private double targetDir = 0;
     double dir;
@@ -47,7 +47,6 @@ public class linearOpMode extends LinearOpMode {
        */
 
             // linear slide controls
-
             double slideExtendPower = gamepad2.left_stick_y;
             double slideAbdPower = gamepad2.right_stick_y;
             if (gamepad2.right_stick_y != 0) {
@@ -93,14 +92,14 @@ public class linearOpMode extends LinearOpMode {
             // presets
             if (gamepad2.dpad_up && !runningPreset) {
                 runningPreset = true;
-                RobotConfig.arm1.setTargetPosition(ABD_TO_RUNG);
-                RobotConfig.arm2.setTargetPosition(ABD_TO_RUNG);
+                targetPos = RobotConfig.ABD_SPEC; // sets target position for arm1 encoders
+                RobotConfig.wrist1.setPosition(0);
 
             } else if (gamepad2.dpad_down && !runningPreset) {
                 runningPreset = true;
-                RobotConfig.arm1.setTargetPosition(ABD_DOWN);
-                RobotConfig.arm2.setTargetPosition(ABD_DOWN);
-
+                targetPos = RobotConfig.ABD_PICKUP;
+                RobotConfig.wrist1.setPosition(RobotConfig.WRIST_PICKUP);
+                RobotConfig.intake.setPosition(1);
             } // if
 
             // STOP ALL PRESETS
@@ -108,21 +107,9 @@ public class linearOpMode extends LinearOpMode {
                 runningPreset = false;
             }
 
-            if (runningPreset && RobotConfig.arm1.getCurrentPosition() > RobotConfig.arm1.getTargetPosition() - 5 && RobotConfig.arm1.getCurrentPosition() < RobotConfig.arm1.getTargetPosition() + 5) {
-                runningPreset = false;
-            }
-
             // Power to the arm
-            if (runningPreset) {
-                // TODO FIX
-                RobotConfig.arm1.setPower(0.5);
-                RobotConfig.arm2.setPower(0.5);
-
-            } else {
-                RobotConfig.arm1.setPower(slideAbdPower);
-                RobotConfig.arm2.setPower(slideAbdPower);
-
-            } // if else
+            RobotConfig.arm1.setPower(slideAbdPower);
+            RobotConfig.arm2.setPower(slideAbdPower);
 
             RobotConfig.slideExtension.setPower(slideExtendPower);
 
