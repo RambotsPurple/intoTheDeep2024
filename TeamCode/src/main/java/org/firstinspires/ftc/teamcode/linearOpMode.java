@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 @TeleOp(name = "RambotsPurpleTeleOp")
 public class linearOpMode extends LinearOpMode {
 
-    private double intakePower = 0;
+    private double intakePos = 0;
     private boolean runningPreset = false;
 
     // wrist
@@ -96,14 +96,14 @@ public class linearOpMode extends LinearOpMode {
 
             // intake
             if (gamepad2.a && intakeReleased) {
-                intakePower = 1 - intakePower;
+                intakePos = 1 - intakePos;
                 intakeReleased = false;
             }
             if (gamepad2.b && intakeReleased) {
-                intakePower = Math.max(0, intakePower - 0.1);
+                intakePos = Math.max(0, intakePos - 0.1);
                 intakeReleased = false;
             } else if (gamepad2.y && intakeReleased) {
-                intakePower = Math.min(1, intakePower + 0.1);
+                intakePos = Math.min(1, intakePos + 0.1);
                 intakeReleased = false;
             }
 
@@ -115,13 +115,13 @@ public class linearOpMode extends LinearOpMode {
             if (gamepad2.dpad_up) {
                 runningPreset = true;
                 targetPos = RobotConfig.ABD_SPEC; // sets target position for arm1 encoders
-                RobotConfig.wrist1.setPosition(0);
+                wristPos = 0;
 
             } else if (gamepad2.dpad_down) {
                 runningPreset = true;
                 targetPos = RobotConfig.ABD_PICKUP;
-                RobotConfig.wrist1.setPosition(RobotConfig.WRIST_PICKUP);
-                RobotConfig.intake.setPosition(1);
+                wristPos = RobotConfig.WRIST_PICKUP;
+                intakePos = 1;
             } // if
 
             // STOP ALL PRESETS
@@ -142,17 +142,11 @@ public class linearOpMode extends LinearOpMode {
                 wristPos = Math.max(0, wristPos - 0.025);
             }
 
-            if (gamepad2.right_trigger > 0) {
-                wrist2Pos = Math.min(1, wrist2Pos + 0.025);
-            } else if (gamepad2.right_bumper) {
-                wrist2Pos = Math.max(0, wrist2Pos - 0.025);
-            }
-
             RobotConfig.wrist1.setPosition(wristPos);
 
 
             // Power to the intake
-            RobotConfig.intake.setPosition(intakePower);
+            RobotConfig.intake.setPosition(intakePos);
 
             // Telemetry
             telemetry.addData("RUNNING PRESET:", runningPreset);
@@ -163,7 +157,7 @@ public class linearOpMode extends LinearOpMode {
             telemetry.addData("Ext position:", RobotConfig.slideExtension.getCurrentPosition());
             telemetry.addData("wrist pos:", RobotConfig.wrist1);
 
-            telemetry.addData("Intake pos (right is inverse): ", intakePower);
+            telemetry.addData("Intake pos (right is inverse): ", intakePos);
             telemetry.addData("Slide extension power: ", slideExtendPower);
             telemetry.addData("Slide abduction power: ", slideAbdPower);
             telemetry.addData("Target abduction pos: ", targetPos);
