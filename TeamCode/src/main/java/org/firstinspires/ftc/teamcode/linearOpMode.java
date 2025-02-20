@@ -68,14 +68,14 @@ public class linearOpMode extends LinearOpMode {
                 targetDir = dir ; // TODO tune
             }
 
-            double turn = (targetDir - dir) / 20 + gamepad1.right_stick_x;
+            double turn = (dir - targetDir) / 30 + gamepad1.right_stick_x;
             turn = Math.min(1, turn);
             turn = Math.max(-1, turn);
 
-            RobotConfig.drive(gamepad1.left_stick_x * 1.1, -gamepad1.left_stick_y, turn, 0); // no dir correction
+            RobotConfig.drive(gamepad1.left_stick_x * 1.1, -gamepad1.left_stick_y, turn, dir); // no dir correction
 
             if (gamepad2.a && intakeReleased) {
-                intakePower = .45 - intakePower;
+                intakePower = 1 - intakePower;
                 intakeReleased = false;
             }
             if (gamepad2.b && intakeReleased) {
@@ -119,8 +119,8 @@ public class linearOpMode extends LinearOpMode {
                 RobotConfig.arm2.setPower(0.5);
 
             } else {
-                RobotConfig.arm1.setPower(-slideAbdPower * 0.65);
-                RobotConfig.arm2.setPower(-slideAbdPower * 0.65);
+                RobotConfig.arm1.setPower(slideAbdPower);
+                RobotConfig.arm2.setPower(slideAbdPower);
 
             } // if else
 
@@ -149,6 +149,7 @@ public class linearOpMode extends LinearOpMode {
             telemetry.addData("RUNNING PRESET:", runningPreset);
             telemetry.addData("RUNMODE:", RobotConfig.arm1.getMode());
             telemetry.addData("Abd 1 position:", RobotConfig.arm1.getCurrentPosition());
+            telemetry.addData("intake pos BETTER VERSION:", RobotConfig.intake.getPosition());
 
             telemetry.addData("Ext position:", RobotConfig.slideExtension.getCurrentPosition());
             telemetry.addData("wrist pos:", RobotConfig.wrist1);
@@ -159,7 +160,10 @@ public class linearOpMode extends LinearOpMode {
             telemetry.addData("Target abduction pos: ", targetPos);
             telemetry.addData("Slide abduction pos: ", RobotConfig.arm1.getCurrentPosition());
             telemetry.addData("Slide extension pos: ", RobotConfig.slideExtension.getCurrentPosition());
-//      telemetry.addData("Wrist power: ", wristpower);
+
+            telemetry.addData("heading", dir);
+
+            telemetry.addData("Wrist pos: ", wristPos);
             telemetry.update();
 
         }
