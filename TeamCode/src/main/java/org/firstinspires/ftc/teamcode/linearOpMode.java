@@ -28,8 +28,8 @@ public class linearOpMode extends LinearOpMode {
         waitForStart();
 
         boolean intakeReleased = true;
-
         boolean correctPath = false;
+        boolean fieldCentric = false;
 
         if (isStopRequested()) return;
 
@@ -55,6 +55,13 @@ public class linearOpMode extends LinearOpMode {
             }
             if (gamepad2.right_stick_y < 0) {
                 armCorrectionFactor *= -1;
+            }
+
+            // toggle field centric drive
+            if (gamepad1.left_trigger > 0) {
+                fieldCentric = true;
+            } else if (gamepad1.right_trigger > 0) {
+                fieldCentric = false;
             }
 
             // linear slide controls
@@ -92,7 +99,12 @@ public class linearOpMode extends LinearOpMode {
             } else if (gamepad1.right_bumper) {
                 correctPath = false;
             }
-            RobotConfig.drive(gamepad1.left_stick_x * 1.1, -gamepad1.left_stick_y, turn, dir);
+
+            if (fieldCentric) {
+                RobotConfig.drive(gamepad1.left_stick_x * 1.1, -gamepad1.left_stick_y, turn, dir);
+            } else {
+                RobotConfig.drive(gamepad1.left_stick_x * 1.1, -gamepad1.left_stick_y, turn, 0);
+            }
 
             // intake
             if (gamepad2.a && intakeReleased) {
