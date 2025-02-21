@@ -11,29 +11,25 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.acmerobotics.roadrunner.ParallelAction;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import org.firstinspires.ftc.teamcode.MecanumDrive;
-import org.firstinspires.ftc.teamcode.RobotConfig;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 @Autonomous(name = "Real Auton ", group = "Autonomous")
-public class SparkfunAuto extends LinearOpMode {
+public class AutoRedSpeci extends LinearOpMode {
+
+    int targetPos = 0;
+
     public class Lift {
 
         // component
-//        public Lift(HardwareMap hardwareMap) {
-//            arm1 = hardwareMap.get(DcMotorEx.class, "arm1");
-//            arm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//            arm1.setDirection(DcMotorSimple.Direction.FORWARD);
-//
-//            arm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//            arm2.setDirection(DcMotorSimple.Direction.FORWARD);
-//        }
+        public Lift() {
+            RobotConfig.arm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            RobotConfig.arm1.setDirection(DcMotorSimple.Direction.FORWARD);
+
+            RobotConfig.arm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            RobotConfig.arm2.setDirection(DcMotorSimple.Direction.FORWARD);
+        }
 
         // raises lift
         public class LiftUp implements Action {
@@ -42,18 +38,24 @@ public class SparkfunAuto extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!initialized) {
-                    RobotConfig.arm1.setPower(0.8);
-                    RobotConfig.arm2.setPower(0.8);
+                    targetPos = RobotConfig.ABD_SPEC;
+                    RobotConfig.arm1.setTargetPosition(targetPos);
+                    RobotConfig.arm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    RobotConfig.arm1.setVelocity(1000);
+                    RobotConfig.arm2.setTargetPosition(targetPos);
+                    RobotConfig.arm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    RobotConfig.arm2.setVelocity(1000);
                     initialized = true;
                 }
 
                 double pos = RobotConfig.arm1.getCurrentPosition();
                 packet.put("liftPos", pos);
-                if (pos < 3000.0) {
+                if (pos < RobotConfig.ABD_SPEC) {
                     return true;
                 } else {
-                    RobotConfig.arm1.setPower(0);
-                    RobotConfig.arm2.setPower(0);
+                    targetPos = 0;
+                    RobotConfig.arm1.setPower(targetPos);
+                    RobotConfig.arm2.setPower(targetPos);
                     return false;
                 }
             }
@@ -65,25 +67,31 @@ public class SparkfunAuto extends LinearOpMode {
         }
 
 
-        // lower lift
+        // pickup
         public class LiftDown implements Action {
             private boolean initialized = false;
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!initialized) {
-                    RobotConfig.arm1.setPower(-0.8);
-                    RobotConfig.arm2.setPower(-0.8);
+                    targetPos = RobotConfig.ABD_PICKUP;
+                    RobotConfig.arm1.setTargetPosition(targetPos);
+                    RobotConfig.arm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    RobotConfig.arm1.setVelocity(1000);
+                    RobotConfig.arm2.setTargetPosition(targetPos);
+                    RobotConfig.arm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    RobotConfig.arm2.setVelocity(1000);
                     initialized = true;
                 }
 
                 double pos = RobotConfig.arm1.getCurrentPosition();
                 packet.put("liftPos", pos);
-                if (pos > 100.0) {
+                if (pos > RobotConfig.ABD_PICKUP) {
                     return true;
                 } else {
-                    RobotConfig.arm1.setPower(0);
-                    RobotConfig.arm2.setPower(0);
+                    targetPos = 0;
+                    RobotConfig.arm1.setPower(targetPos);
+                    RobotConfig.arm2.setPower(targetPos);
                     return false;
                 }
             }
@@ -131,7 +139,6 @@ public class SparkfunAuto extends LinearOpMode {
         Claw claw = new Claw();
         // make a Lift instance
         Lift lift = new Lift();
-        // vision here that outputs position
 
 //        @TODO trajectorty
 
@@ -146,19 +153,7 @@ public class SparkfunAuto extends LinearOpMode {
                 .turn(Math.toRadians(180))
                 .lineToX(47.5)
                 .waitSeconds(3);
-//        TrajectoryActionBuilder tab2 = drive.actionBuilder(initialPose)
-//                .lineToY(37)
-//                .setTangent(Math.toRadians(0))
-//                .lineToX(18)
-//                .waitSeconds(3)
-//                .setTangent(Math.toRadians(0))
-//                .lineToXSplineHeading(46, Math.toRadians(180))
-//                .waitSeconds(3);
-//        TrajectoryActionBuilder tab3 = drive.actionBuilder(initialPose)
-//                .lineToYSplineHeading(33, Math.toRadians(180))
-//                .waitSeconds(2)
-//                .strafeTo(new Vector2d(46, 30))
-//                .waitSeconds(3);
+//
         Action trajectoryActionCloseOut = tab1.endTrajectory().fresh()
                 .strafeTo(new Vector2d(48, 12))
                 .build();
