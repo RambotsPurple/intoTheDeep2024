@@ -1,6 +1,7 @@
 package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeBlueDark;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
@@ -85,7 +86,7 @@ public class MeepMeepTesting {
                 .setColorScheme(new ColorSchemeBlueDark())
                 .setConstraints(100, 100, Math.toRadians(180), Math.toRadians(180), 12)
                 .build();
-        mySecondBot.runAction(mySecondBot.getDrive().actionBuilder(new Pose2d(0, 60, Math.toRadians(270)))
+        mySecondBot.runAction(mySecondBot.getDrive().actionBuilder(new Pose2d(11, 60, Math.toRadians(270)))
 
 //                .lineToY(34)  // Inverse of -34
 //                .turn(Math.toRadians(-90))  // Inverse of 90°
@@ -146,25 +147,28 @@ public class MeepMeepTesting {
 //                .turn(Math.toRadians(-180))  // Inverse of 180°
 //                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
 //                .lineToY(55)  // Inverse of -55
+//                .setTangent(0)
+                    //start
+//                .splineTo(new Vector2d(50, 40), Math.PI / -8)
+//                .setTangent(Math.PI)
+//                .lineToX(50)
+//                .setTangent(Math.PI/2)
+//                .lineToY(40)
+//                .waitSeconds(2)
+                //loot get
+//                        .setTangent(Math.PI)
+//                        .lineToX(56)
+//                        .turn(Math.toRadians(-45))
+                .setTangent(0)
+                .lineToXSplineHeading(45, 5*Math.PI / 4)
+                .strafeTo(new Vector2d(56, 56))
 
-                .setTangent(Math.PI)
-                .lineToX(50)
-                .setTangent(Math.PI/2)
-                .lineToY(40)
-                .waitSeconds(2)
+                .setTangent(0)
+                .splineToConstantHeading(new Vector2d(48, 38), Math.PI / 2)
+                        .turn(Math.toRadians(45))
+                .setTangent(0)
+                .splineToConstantHeading(new Vector2d(30, 5), Math.PI / 2)
 
-                .setTangent(Math.PI)
-                .lineToX(56)
-                .waitSeconds(2)
-                .setTangent(Math.PI)
-                .waitSeconds(2)
-
-                .lineToX(62)
-
-                .setTangent(Math.PI/2)
-                .lineToY(50)
-                .setTangent(Math.PI)
-                .lineToX(-50)
 
 
 

@@ -16,10 +16,35 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @Config
-@Autonomous(name = "Sample ", group = "Autonomous")
+@Autonomous(name = "SampleAuto ", group = "Autonomous")
 public class SampleAuto extends LinearOpMode {
 
     int targetPos = 0;
+
+    public class wrist{
+        public class WristUp implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                RobotConfig.wrist1.setPosition(0.55);
+                return false;
+            }
+        }
+        public  Action wristUp() {
+            return new WristUp();
+        }
+
+        public class WristDown implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                RobotConfig.wrist1.setPosition(1.0);
+                return false;
+            }
+        }
+        public Action wristDown() {
+            return new WristDown();
+        }
+
+    }
 
     public class Lift {
 
@@ -111,7 +136,7 @@ public class SampleAuto extends LinearOpMode {
         public class CloseClaw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                RobotConfig.wrist1.setPosition(0.55);
+                RobotConfig.intake.setPosition(0.55);
                 return false;
             }
         }
@@ -122,7 +147,7 @@ public class SampleAuto extends LinearOpMode {
         public class OpenClaw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                RobotConfig.wrist1.setPosition(1.0);
+                RobotConfig.intake.setPosition(1.0);
                 return false;
             }
         }
@@ -130,67 +155,114 @@ public class SampleAuto extends LinearOpMode {
             return new OpenClaw();
         }
     }
+    public  class extend {
+        public class ExtendForward implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                targetPos = RobotConfig.ABD_PICKUP;//make it full slide extend
+                RobotConfig.slideExtension.setTargetPosition(targetPos);
+                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                RobotConfig.slideExtension.setVelocity(1000);
+                return false;
+            }
+
+
+        }
+        public Action extendForward() {
+            return new extend.ExtendForward();
+        }
+
+        public class ExtendBackwards implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                targetPos = RobotConfig.ABD_PICKUP;//make it full slide extend
+                RobotConfig.slideExtension.setTargetPosition(targetPos);
+                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                RobotConfig.slideExtension.setVelocity(1000);
+                return false;
+            }
+
+
+        }
+        public Action extendBackwards() {
+            return new extend.ExtendBackwards();
+        }
+
+    }
 
     @Override
     public void runOpMode() {
         RobotConfig.initialize(hardwareMap);
 
-        ParallelAction moveAndTurn = new ParallelAction(
 
-        );
-
-        Pose2d initialPose = new Pose2d(0, 60, Math.toRadians(90));
+        Pose2d initialPose = new Pose2d(11, 60, Math.toRadians(90));
         SparkFunOTOSDrive drive = new SparkFunOTOSDrive(hardwareMap, initialPose);
+//        instances
         Claw claw = new Claw();
-        // make a Lift instance
         Lift lift = new Lift();
-
+        wrist wrist = new wrist();
+        extend extend = new extend();
 //        @TODO trajectorty
 
-        TrajectoryActionBuilder firstClip = drive.actionBuilder(initialPose)
-                .setTangent(Math.PI)
-                .lineToX(50)
-                .setTangent(Math.PI/2)
-                .lineToY(40)
-                .waitSeconds(2)
 
-                .setTangent(Math.PI)
-                .lineToX(56)
-                .waitSeconds(2)
+        //drive to basket
+        TrajectoryActionBuilder DriveToBaseket = drive.actionBuilder(initialPose)
+                .setTangent(0)
+                .lineToXSplineHeading(40, 5*Math.PI / 4)
+                .strafeTo(new Vector2d(56, 56));
 
-                .lineToX(62)
+        //go back after grabbing the sample
+        TrajectoryActionBuilder MoveBackToBasket = drive.actionBuilder(new Pose2d(48, 45,90));
 
-                .setTangent(Math.PI/2)
-                .lineToY(50)
-                .setTangent(Math.PI)
-                .lineToX(-50)
-                .waitSeconds(3);
-                //start
+        TrajectoryActionBuilder FirstSample = drive.actionBuilder(new Pose2d(56, 56,225));
+                .setTangent(0)
+                .splineToConstantHeading(new Vector2d(48, 38), Math.PI / 2)
+                .turn(Math.toRadians(45));
 
-        Action trajectoryActionCloseOut = firstClip.endTrajectory().fresh()
-                .lineToY(-5)
+
+        //park at rung
+        Action trajectoryActionCloseOut = DriveToBaseket.endTrajectory().fresh()
+                .setTangent(0)
+                .splineToConstantHeading(new Vector2d(30, 5), Math.PI / 2)
                 .build();
 
         // actions that need to happen on init; for instance, a claw tightening.
         Actions.runBlocking(claw.closeClaw());
-
-
-
+        while (!isStopRequested() && !opModeIsActive()) {
+            telemetry.addLine("We're the goats don't worry drivers, WE ARE THEM!");
+            telemetry.update();
+        }
 
         waitForStart();
 
         if (isStopRequested()) return;
 
-        Action trajectoryActionChosen;
 
 
-        trajectoryActionChosen = firstClip.build();
+        Action driveToBaseket = DriveToBaseket.build();
+        Action moveBackToBasket = MoveBackToBasket.build();
+        Action firstSample = FirstSample.build();
         Actions.runBlocking(
                 new SequentialAction(
-                        trajectoryActionChosen,
+//                        drops preplaced sample after arriving to basket
                         lift.liftUp(),
+                        extend.extendForward(),
+                        wrist.wristUp(),
+                        driveToBaseket,
                         claw.openClaw(),
+
+//                        retracts
                         lift.liftDown(),
+                        extend.extendBackwards(),
+                        wrist.wristDown(),
+//                        goes to teh fiurst sample and picks up
+                        firstSample,
+                        claw.closeClaw(),
+                        lift.liftUp(),
+//                        goes back to basket and score
+                        moveBackToBasket,
+                        claw.openClaw(),
+//                      @TODO more add second and third possibly a fourth
                         trajectoryActionCloseOut
                 )
         );
