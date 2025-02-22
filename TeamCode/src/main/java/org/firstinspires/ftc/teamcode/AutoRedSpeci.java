@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -134,28 +135,116 @@ public class AutoRedSpeci extends LinearOpMode {
     public void runOpMode() {
         RobotConfig.initialize(hardwareMap);
 
-        Pose2d initialPose = new Pose2d(11.8, 61.7, Math.toRadians(90));
-        MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
+        ParallelAction moveAndTurn = new ParallelAction(
+
+        );
+
+        Pose2d initialPose = new Pose2d(0, -60, Math.toRadians(90));
+        SparkFunOTOSDrive drive = new SparkFunOTOSDrive(hardwareMap, initialPose);
         Claw claw = new Claw();
         // make a Lift instance
         Lift lift = new Lift();
 
 //        @TODO trajectorty
 
-        TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
-                .lineToYSplineHeading(33, Math.toRadians(0))
-                .waitSeconds(2)
-                .setTangent(Math.toRadians(90))
-                .lineToY(48)
-                .setTangent(Math.toRadians(0))
-                .lineToX(32)
-                .strafeTo(new Vector2d(44.5, 30))
-                .turn(Math.toRadians(180))
-                .lineToX(47.5)
+        TrajectoryActionBuilder firstClip = drive.actionBuilder(initialPose)
+                //start
+                .lineToY(-34)
+                //rotate
+                .setTangent(Math.PI)
+                .lineToX(33)
+                //x
+                .setTangent(Math.PI/2)
+                .lineToY(-5)
+                .setTangent(Math.PI)
+                .lineToX(45)
+                .waitSeconds(1)
+
+                .setTangent(Math.PI/2)
+                .lineToY(-40)
+                .lineToY(-5)
+
+                .setTangent(Math.PI)
+                .lineToX(54)
+                .waitSeconds(1)
+
+                .setTangent(Math.PI/2)
+                .lineToY(-40)
+                .lineToY(-5)
+                .waitSeconds(1)
+
+                .setTangent(Math.PI)
+                .waitSeconds(1)
+                .lineToX(62)
+
+                .setTangent(Math.PI/2)
+                .lineToY(-40)
+
+                .waitSeconds(1)
+
+                .setTangent(Math.PI)
+                .lineToX(40)
+                .waitSeconds(1)
+
+                .turn(Math.toRadians(90))
+
+                .setTangent(Math.PI)  // Inverse of Math.PI
+                .lineToX(-48)  // Inverse of 48
+                .setTangent(Math.PI/-2)  // Inverse of Math.PI/2
+                .lineToY(55)  // Inverse of -55
+                .lineToY(5)  // Inverse of -5
+                .setTangent(Math.PI)  // Inverse of Math.PI
+                .lineToX(-54)  // Inverse of 54
+                .setTangent(Math.PI/-2)  // Inverse of Math.PI/2
+                .lineToY(55)  // Inverse of -55
+                .lineToY(5)  // Inverse of -5
+                .setTangent(Math.PI)  // Inverse of Math.PI
+                .lineToX(-62)  // Inverse of 62
+                .setTangent(Math.PI/-2)  // Inverse of Math.PI/2
+                .lineToY(55)  // Inverse of -55
+                .setTangent(Math.PI)  // Inverse of Math.PI
+                .lineToX(-40)  // Inverse of 40
+                .turn(Math.toRadians(-90))  // Inverse of 90°
+
+
+// Clips
+                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
+                .lineToY(34)  // Inverse of -34
+                .turn(Math.toRadians(-180))  // Inverse of 180°
+                .turn(Math.toRadians(-180))  // Inverse of 180°
+                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
+                .lineToY(55)  // Inverse of -55
+
+                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
+                .lineToY(34)  // Inverse of -34
+                .turn(Math.toRadians(-180))  // Inverse of 180°
+                .turn(Math.toRadians(-180))  // Inverse of 180°
+                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
+                .lineToY(55)  // Inverse of -55
+
+                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
+                .lineToY(34)  // Inverse of -34
+                .turn(Math.toRadians(-180))  // Inverse of 180°
+                .turn(Math.toRadians(-180))  // Inverse of 180°
+                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
+                .lineToY(55)  // Inverse of -55
+
+                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
+                .lineToY(34)  // Inverse of -34
+                .turn(Math.toRadians(-180))  // Inverse of 180°
+                .turn(Math.toRadians(-180))  // Inverse of 180°
+                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
+                .lineToY(55)  // Inverse of -55
+
+                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
+                .lineToY(34)  // Inverse of -34
+                .turn(Math.toRadians(-180))  // Inverse of 180°
+                .turn(Math.toRadians(-180))  // Inverse of 180°
+                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
                 .waitSeconds(3);
-//
-        Action trajectoryActionCloseOut = tab1.endTrajectory().fresh()
-                .strafeTo(new Vector2d(48, 12))
+
+        Action trajectoryActionCloseOut = firstClip.endTrajectory().fresh()
+                .lineToY(-5)
                 .build();
 
         // actions that need to happen on init; for instance, a claw tightening.
@@ -170,7 +259,8 @@ public class AutoRedSpeci extends LinearOpMode {
 
         Action trajectoryActionChosen;
 
-        trajectoryActionChosen = tab1.build();
+
+        trajectoryActionChosen = firstClip.build();
         Actions.runBlocking(
                 new SequentialAction(
                         trajectoryActionChosen,
