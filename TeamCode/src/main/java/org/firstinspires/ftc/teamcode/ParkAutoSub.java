@@ -18,8 +18,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
-@Autonomous(name = "SampleAuto ", group = "Autonomous")
-public class SampleAuto extends LinearOpMode {
+@Autonomous(name = "TempSampleAuto better version ", group = "Autonomous")
+public class ParkAutoSub extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     int targetPos = 0;
@@ -159,15 +159,13 @@ public class SampleAuto extends LinearOpMode {
         }
     }
     public  class extend {
-        public class ExtendForward extends Thread implements Action {
+        public class ExtendForward implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                targetPos = RobotConfig.EXT_BASKET; //make it full slide extend
-                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                while (RobotConfig.encoder.getCurrentPosition() > targetPos) {
-                    RobotConfig.slideExtension.setPower(1);
-                }
-                RobotConfig.slideExtension.setPower(0);
+                targetPos = RobotConfig.EXT_BASKET;//make it full slide extend
+                RobotConfig.slideExtension.setTargetPosition(targetPos);
+                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                RobotConfig.slideExtension.setVelocity(3000);
 
                 return false;
             }
@@ -181,14 +179,10 @@ public class SampleAuto extends LinearOpMode {
         public class ExtendBackwards implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                targetPos = 0; //make it full slide extend
-                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                while (RobotConfig.encoder.getCurrentPosition() < 0) {
-                    RobotConfig.slideExtension.setPower(1);
-                }
-                RobotConfig.slideExtension.setPower(0);
-
-
+                targetPos = RobotConfig.EXT_REG;//make it full slide extend
+                RobotConfig.slideExtension.setTargetPosition(targetPos);
+                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                RobotConfig.slideExtension.setVelocity(3000);
                 return false;
             }
 
@@ -217,24 +211,21 @@ public class SampleAuto extends LinearOpMode {
 
         //drive to basket
         TrajectoryActionBuilder DriveToBaseket = drive.actionBuilder(initialPose)
-                .setTangent(Math.PI/2)
-                .lineToY(54)
                 .setTangent(0)
                 .lineToXSplineHeading(40, 5*Math.PI / 4)
-                .strafeTo(new Vector2d(60, 60))
-                .waitSeconds(2);
+                .strafeTo(new Vector2d(58, 58))
+                .waitSeconds(4);
 
         //go back after grabbing the sample
         TrajectoryActionBuilder MoveBackToBasket = drive.actionBuilder(new Pose2d(48, 45,90))
-             .setTangent(0)
+                .setTangent(0)
                 .splineToConstantHeading(new Vector2d(56, 56), Math.PI / 2);
 
-        TrajectoryActionBuilder FirstSample = drive.actionBuilder(new Pose2d(60, 60,225))
+        TrajectoryActionBuilder FirstSample = drive.actionBuilder(new Pose2d(56, 56,225))
                 .setTangent(0)
-                .splineToConstantHeading(new Vector2d(47, 40), Math.PI / 2)
-                .turn(Math.toRadians(45))
-                .waitSeconds(2);
-
+                .splineToConstantHeading(new Vector2d(48, 38), Math.PI / 2)
+                .turn(Math.toRadians(45));
+//
 //        TrajectoryActionBuilder SecondSample = drive.actionBuilder(new Pose2d(56, 56,225))
 //                .setTangent(0)
 //                .splineToConstantHeading(new Vector2d(48, 38), Math.PI / 2)
@@ -247,10 +238,12 @@ public class SampleAuto extends LinearOpMode {
 
         //park at rung
         Action trajectoryActionCloseOut = DriveToBaseket.endTrajectory().fresh()
+                 .setTangent(Math.PI/2)
+                .lineToYSplineHeading(40, Math.toRadians(270))
                 .setTangent(0)
+                .lineToX(54)
                 .splineToConstantHeading(new Vector2d(30, 5), Math.PI / 2)
                 .build();
-
         // actions that need to happen on init; for instance, a claw tightening.
         Actions.runBlocking(claw.closeClaw());
         while (!isStopRequested() && !opModeIsActive()) {
@@ -262,6 +255,8 @@ public class SampleAuto extends LinearOpMode {
 
         if (isStopRequested()) return;
 
+
+
         Action driveToBaseket = DriveToBaseket.build();
         Action moveBackToBasket = MoveBackToBasket.build();
         Action firstSample = FirstSample.build();
@@ -269,16 +264,15 @@ public class SampleAuto extends LinearOpMode {
                 new SequentialAction(
 //                        drops preplaced sample after arriving to basket
                         lift.liftUp(),
-//                        extend.extendForward(),
+                        extend.extendForward(),
                         wrist.wristUp(),
                         driveToBaseket,
                         claw.openClaw(),
 //                        retracts
-//                        lift.liftDown(),
-//                        extend.extendBackwards(),
-//                        wrist.wristDown(),
+                        lift.liftDown(),
+                        extend.extendBackwards(),
+                        wrist.wristDown(),
 //                        goes to teh fiurst sample and picks up
-                        firstSample,
 //                        claw.closeClaw(),
 //                        lift.liftUp(),
 //                        goes back to basket and score

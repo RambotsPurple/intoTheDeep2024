@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class RobotConfig {
+
+    public static DcMotorEx encoder = null;
     public static DcMotorEx frontLeft = null, rearLeft = null;
     public static DcMotorEx frontRight = null, rearRight = null;
     public static DcMotorEx slideExtension = null;
@@ -30,9 +32,13 @@ public class RobotConfig {
     // ARM POSITIONS
     // TODO TUNE
     final static int ABD_SPEC = -2933;
-    final static int ABD_PICKUP = -667;
+
+    final static int EXT_BASKET = -62; //@TODO  get the encoder values
+
+    final static  int EXT_REG = -515;
+    final static int ABD_PICKUP = -883;
     final static double WRIST_START = 0.16;
-    final static double WRIST_PICKUP = 0.32;
+    final static double WRIST_PICKUP = 0.37;
 
 
     public static void initialize(HardwareMap hw) {
@@ -64,6 +70,8 @@ public class RobotConfig {
         arm1 = hardwareMap.get(DcMotorEx.class, "slideAbd");
         arm2 = hardwareMap.get(DcMotorEx.class, "slideAbd2");
 
+//        encoder
+        encoder = hardwareMap.get(DcMotorEx.class,"encoder");
 
         slideExtension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -106,6 +114,9 @@ public class RobotConfig {
         arm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slideExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        encoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         resetAngle();
     }

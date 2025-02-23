@@ -10,7 +10,7 @@ import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
 public class MeepMeepTesting {
     public static void main(String[] args) {
-        MeepMeep meepMeep = new MeepMeep(800);
+        MeepMeep meepMeep = new MeepMeep(600);
 
         // Declare our first bot
         RoadRunnerBotEntity myFirstBot = new DefaultBotBuilder(meepMeep)
@@ -86,7 +86,7 @@ public class MeepMeepTesting {
                 .setColorScheme(new ColorSchemeBlueDark())
                 .setConstraints(100, 100, Math.toRadians(180), Math.toRadians(180), 12)
                 .build();
-        mySecondBot.runAction(mySecondBot.getDrive().actionBuilder(new Pose2d(11, 60, Math.toRadians(270)))
+        mySecondBot.runAction(mySecondBot.getDrive().actionBuilder(new Pose2d(-11, 60, Math.toRadians(-90)))
 
 //                .lineToY(34)  // Inverse of -34
 //                .turn(Math.toRadians(-90))  // Inverse of 90°
@@ -159,21 +159,78 @@ public class MeepMeepTesting {
 //                        .setTangent(Math.PI)
 //                        .lineToX(56)
 //                        .turn(Math.toRadians(-45))
-                .setTangent(0)
-                .lineToXSplineHeading(45, 5*Math.PI / 4)
-                .strafeTo(new Vector2d(56, 56))
 
-                .setTangent(0)
-                .splineToConstantHeading(new Vector2d(48, 38), Math.PI / 2)
-                        .turn(Math.toRadians(45))
-                .setTangent(0)
-                .splineToConstantHeading(new Vector2d(30, 5), Math.PI / 2)
+                //speci one
+
+//                .setTangent(0)
+//                .lineToXSplineHeading(40, Math.toRadians(225))
+//                .strafeTo(new Vector2d(58, 58))
+//                .waitSeconds(4)
+//
+//                .setTangent(Math.PI/2)
+//               .lineToYSplineHeading(40, Math.toRadians(270))
+//                .setTangent(0)
+//                .lineToX(54)
+//               .splineToConstantHeading(new Vector2d(30, 5), Math.PI / 2)
+
+
+//                .setTangent(0)
+//                .lineToXSplineHeading(45, 5*Math.PI / 4)
+//                .strafeTo(new Vector2d(58, 58))
+//
+//                .waitSeconds(4)
+//
+//                .setTangent(0)
+//                .splineToConstantHeading(new Vector2d(48, 38), Math.PI / 2)
+//                        .turn(Math.toRadians(45))
+//
+//
+//                .setTangent(0)
+//
+////                back to basket
+//                .splineToConstantHeading(new Vector2d(56, 56), Math.PI / 2)
+//                .turn(Math.toRadians(-45))
+//
+//                .splineToConstantHeading(new Vector2d(58, 38), Math.PI / 2)
+//                .turn(Math.toRadians(45))
+//
+//
+////                back to basket
+//                .splineToConstantHeading(new Vector2d(56, 56), Math.PI / 2)
+//                .turn(Math.toRadians(-45))
+//
+////                final Sample
+//
+//                .splineToConstantHeading(new Vector2d(58, 38), Math.PI / 2)
+//                .turn(Math.toRadians(90))
+//
+//
+////               Final back to basket
+//                        .splineToConstantHeading(new Vector2d(56, 56), Math.PI / 2)
+//                        .turn(Math.toRadians(-90))
+//
+//                .setTangent(0)
+//                        .lineToX(35)
+//                .splineToConstantHeading(new Vector2d(30, 5), Math.PI / -2)
 
 
 
 
 //                .waitSeconds(3);
                 // We set this bot to be blue
+//
+//                        .setTangent(0)
+//                        .lineToX(-60)
+                .setTangent(Math.PI/2)
+                .lineToY(54)
+                .setTangent(0)
+                .lineToXSplineHeading(40, 5*Math.PI / 4)
+                .strafeTo(new Vector2d(60, 60))
+                .waitSeconds(2)
+
+                .setTangent(0)
+                .splineToConstantHeading(new Vector2d(38, 38), Math.PI / 2)
+                .turn(Math.toRadians(45))
 
                 .build());
 

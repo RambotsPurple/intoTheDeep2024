@@ -161,12 +161,13 @@ public class linearOpMode extends LinearOpMode {
             RobotConfig.intake.setPosition(intakePos);
 
             // Telemetry
+
             telemetry.addData("RUNNING PRESET:", runningPreset);
             telemetry.addData("RUNMODE:", RobotConfig.arm1.getMode());
             telemetry.addData("Abd 1 position:", RobotConfig.arm1.getCurrentPosition());
             telemetry.addData("intake pos BETTER VERSION:", RobotConfig.intake.getPosition());
 
-            telemetry.addData("Ext position:", RobotConfig.slideExtension.getCurrentPosition());
+            telemetry.addData("ENCODER:", RobotConfig.slideExtension.getCurrentPosition());
             telemetry.addData("wrist pos:", RobotConfig.wrist1);
 
             telemetry.addData("Intake pos (right is inverse): ", intakePos);
