@@ -134,11 +134,10 @@ public class linearOpMode extends LinearOpMode {
                 targetPos = RobotConfig.ABD_PICKUP;
                 wristPos = RobotConfig.WRIST_PICKUP;
                 intakePos = 1;
-            } // if
-
-            // STOP ALL PRESETS
-            if (gamepad2.dpad_left) {
-                runningPreset = false;
+            } else if (gamepad2.dpad_left) {
+                runningPreset = true;
+                targetPos = RobotConfig.ABD_FISH;
+                wristPos = 0;
             }
 
             // Power to the arm
