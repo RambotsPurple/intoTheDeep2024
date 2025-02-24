@@ -159,13 +159,13 @@ public class SampleAuto extends LinearOpMode {
         }
     }
     public  class extend {
-        public class ExtendForward extends Thread implements Action {
+        public class ExtendForward implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 targetPos = RobotConfig.EXT_BASKET; //make it full slide extend
                 RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 while (RobotConfig.encoder.getCurrentPosition() > targetPos) {
-                    RobotConfig.slideExtension.setPower(1);
+                    RobotConfig.slideExtension.setPower(-1);
                 }
                 RobotConfig.slideExtension.setPower(0);
 
@@ -205,7 +205,7 @@ public class SampleAuto extends LinearOpMode {
         RobotConfig.initialize(hardwareMap);
 
 
-        Pose2d initialPose = new Pose2d(11, 60, Math.toRadians(-  90));
+        Pose2d initialPose = new Pose2d(11.5, 60, Math.toRadians(-  90));
         SparkFunOTOSDrive drive = new SparkFunOTOSDrive(hardwareMap, initialPose);
 //        instances
         Claw claw = new Claw();
@@ -221,7 +221,7 @@ public class SampleAuto extends LinearOpMode {
                 .lineToY(54)
                 .setTangent(0)
                 .lineToXSplineHeading(40, 5*Math.PI / 4)
-                .strafeTo(new Vector2d(60, 60))
+                .strafeTo(new Vector2d(59, 61))
                 .waitSeconds(2);
 
         //go back after grabbing the sample
@@ -231,7 +231,7 @@ public class SampleAuto extends LinearOpMode {
 
         TrajectoryActionBuilder FirstSample = drive.actionBuilder(new Pose2d(60, 60,225))
                 .setTangent(0)
-                .splineToConstantHeading(new Vector2d(47, 40), Math.PI / 2)
+                .splineToConstantHeading(new Vector2d(46, 40), Math.PI / 2)
                 .turn(Math.toRadians(45))
                 .waitSeconds(2);
 
@@ -269,23 +269,23 @@ public class SampleAuto extends LinearOpMode {
                 new SequentialAction(
 //                        drops preplaced sample after arriving to basket
                         lift.liftUp(),
-//                        extend.extendForward(),
+                        extend.extendForward(),
                         wrist.wristUp(),
                         driveToBaseket,
                         claw.openClaw(),
 //                        retracts
-//                        lift.liftDown(),
-//                        extend.extendBackwards(),
-//                        wrist.wristDown(),
-//                        goes to teh fiurst sample and picks up
-                        firstSample,
-//                        claw.closeClaw(),
+                        lift.liftDown(),
+                        extend.extendBackwards()
+////                        wrist.wristDown(),
+////                        goes to teh fiurst sample and picks up
+//                        firstSample,
+////                        claw.closeClaw(),
 //                        lift.liftUp(),
-//                        goes back to basket and score
-//                        moveBackToBasket,
-//                        claw.openClaw(),
-//                      @TODO more add second and third possibly a fourth
-                        trajectoryActionCloseOut
+////                        goes back to basket and score
+////                        moveBackToBasket,
+//                        lift.liftDown(),
+////                      @TODO more add second and third possibly a fourth
+//                        trajectoryActionCloseOut
                 )
         );
     }

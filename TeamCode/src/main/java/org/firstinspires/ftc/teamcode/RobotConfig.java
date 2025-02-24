@@ -32,10 +32,10 @@ public class RobotConfig {
     // ARM POSITIONS
     // TODO TUNE
     final static int ABD_SPEC = -2933;
-
+    final static int ABD_FISH = 0;
     final static int EXT_BASKET = -62; //@TODO  get the encoder values
 
-    final static  int EXT_REG = -515;
+    final static  int EXT_REG = 0;
     final static int ABD_PICKUP = -883;
     final static double WRIST_START = 0.16;
     final static double WRIST_PICKUP = 0.37;
