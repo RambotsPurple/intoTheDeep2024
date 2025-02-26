@@ -1,117 +1,40 @@
 package org.firstinspires.ftc.teamcode;
-import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorSensor;
+
 
 @TeleOp(name = "RambotsPurpleTeleOp")
 public class linearOpMode extends LinearOpMode {
-  private DcMotor frontLeft = null, rearLeft = null;
-  private DcMotor frontRight = null, rearRight = null;
-  private DcMotor CongislideExtension = null;
-  private DcMotor arm1 = null;
-  private DcMotor arm2 = null;
 
+    private double intakePos = 0;
+    private boolean runningPreset = false;
 
-  private Servo  wrist1 = null;
-  private Servo  wrist2 = null;
-  private Servo intake = null;
-  private double intakePower = .7;
+    // wrist
+    private double wristPos = 0.16;
+    private double wrist2Pos = 0;
+    private double targetDir = 0;
+    double dir;
+    int targetPos = 0;
+    int armCorrectionFactor = 0;
 
-  static final double COUNTS_PER_MOTOR_REV = 537.6; // eg: TETRIX Motor Encoder
+    @Override
+    public void runOpMode() {
 
-  final private int ABD_TO_RUNG = 100;
-  final private int ABD_DOWN = 0;
-  private boolean runningPreset = false;
+        // initializing hardware
+        RobotConfig.initialize(hardwareMap);
 
+        waitForStart();
 
-  // THE SENSOR
-  private ColorSensor sensor  = null;
+        boolean intakeReleased = true;
+        boolean correctPath = false;
+        boolean fieldCentric = false;
 
-  // wrist
-  private double wristPos = 0;
-  private double wrist2Pos = 0;
+        if (isStopRequested()) return;
 
-
-
-  @Override
-  public void runOpMode() {
-
-
-    // initializing hardware
-
-    // Drive Train motor
-    frontLeft = hardwareMap.get(DcMotor.class, "leftFront");
-    frontRight = hardwareMap.get(DcMotor.class, "rightFront");
-    rearLeft = hardwareMap.get(DcMotor.class, "leftBack");
-    rearRight = hardwareMap.get(DcMotor.class, "rightBack");
-
-    frontLeft.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-    frontRight.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-    rearLeft.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-    rearRight.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-
-// DcMotors for Linear slide
-    slideExtension = hardwareMap.get(DcMotor.class, "slideExtend");
-    wrist1 = hardwareMap.get(Servo.class, "wrist1");
-    wrist2 = hardwareMap.get(Servo.class,"wrist2");
-    arm1 = hardwareMap.get(DcMotor.class, "slideAbd");
-    arm2 = hardwareMap.get(DcMotor.class, "slideAbd2");
-
-    slideExtension.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-    arm1.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-    arm2.setZeroPowerBehavior(ZeroPowerBehavior.BRAKE);
-
-
-
-    // Takers
-    intake = hardwareMap.get(Servo.class, "intake");
-    sensor = hardwareMap.get(ColorSensor.class, "sensor");
-
-    // MaybeIntake = hardwareMap.get(DcMotor.class, "intake");
-    // Setting the direction for the motor on where to rotate
-
-    // Orientation for drivetrain
-    frontLeft.setDirection(DcMotor.Direction.FORWARD);
-    frontRight.setDirection(DcMotor.Direction.REVERSE);
-    rearLeft.setDirection(DcMotor.Direction.FORWARD);
-    rearRight.setDirection(DcMotor.Direction.REVERSE);
-
-    // intake
-    boolean intakeReleased = true;
-
-    //catch intake
-    boolean CatchRelease = true;
-
-    // linear slide
-    slideExtension.setDirection(DcMotor.Direction.FORWARD);
-    arm1.setDirection(DcMotor.Direction.FORWARD);
-    arm2.setDirection(DcMotor.Direction.REVERSE);
-
-    // normalize motor positions
-    double normalizedAbdPos1 = (double)arm1.getCurrentPosition() / COUNTS_PER_MOTOR_REV; // TODO test
-
-    // ENCODERS
-    arm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    arm2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    arm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    arm1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    slideExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    slideExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-
-//    leftIntake.setPosition(0);
-//    rightIntake.setPosition(0);
-    //wrist
-    waitForStart();
-
-    if (isStopRequested()) return;
-
-    while (opModeIsActive()) {
+        while (opModeIsActive()) {
+            dir = RobotConfig.getAngle();
 
       /*
         GamePad Map
@@ -124,136 +47,142 @@ public class linearOpMode extends LinearOpMode {
           right stick y = slide abduction
        */
 
-      // linear slide controls
+            // tune correction factor
+            if (gamepad2.right_bumper) {
+                armCorrectionFactor += 1;
+            } else if (gamepad2.right_trigger > 0) {
+                armCorrectionFactor -= 1;
+            }
+            if (gamepad2.right_stick_y < 0) {
+                armCorrectionFactor *= -1;
+            }
+
+            // toggle field centric drive
+            if (gamepad1.left_trigger > 0) {
+                fieldCentric = true;
+            } else if (gamepad1.right_trigger > 0) {
+                fieldCentric = false;
+            }
+
+            // linear slide controls
+            double slideExtendPower = gamepad2.left_stick_y;
+            double slideAbdPower = gamepad2.right_stick_y;
+            if (gamepad2.right_stick_y != 0) {
+                RobotConfig.arm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                targetPos = RobotConfig.arm1.getCurrentPosition() + armCorrectionFactor;
+                RobotConfig.arm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                targetPos = RobotConfig.arm2.getCurrentPosition() + armCorrectionFactor;
+            } else {
+                RobotConfig.arm1.setTargetPosition(targetPos);
+                RobotConfig.arm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                RobotConfig.arm1.setVelocity(3000);
+                RobotConfig.arm2.setTargetPosition(targetPos);
+                RobotConfig.arm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                RobotConfig.arm2.setVelocity(3000);
+            }
+
+            if (gamepad1.right_stick_x != 0) {
+                targetDir = dir ; // TODO tune
+            }
+
+            // turning + toggle autocorrect
+            double turn;
+            if (correctPath) {
+                turn = (dir - targetDir) / 30 + gamepad1.right_stick_x;
+                turn = Math.min(1, turn);
+                turn = Math.max(-1, turn);
+            } else {
+                turn = gamepad1.right_stick_x;
+            }
+            if (gamepad1.left_bumper) {
+                correctPath = true;
+            } else if (gamepad1.right_bumper) {
+                correctPath = false;
+            }
+
+            if (fieldCentric) {
+                RobotConfig.drive(gamepad1.left_stick_x * 1.1, -gamepad1.left_stick_y, turn, dir);
+            } else {
+                RobotConfig.drive(gamepad1.left_stick_x * 1.1, -gamepad1.left_stick_y, turn, 0);
+            }
+
+            // intake
+            if (gamepad2.a && intakeReleased) {
+                intakePos = 1 - intakePos;
+                intakeReleased = false;
+            }
+            if (gamepad2.b && intakeReleased) {
+                intakePos = Math.max(0, intakePos - 0.1);
+                intakeReleased = false;
+            } else if (gamepad2.y && intakeReleased) {
+                intakePos = Math.min(1, intakePos + 0.1);
+                intakeReleased = false;
+            }
+
+            if (!gamepad2.a && !gamepad2.b && !gamepad2.y) {
+                intakeReleased = true;
+            }
+
+            // presets
+            if (gamepad2.dpad_up) {
+                runningPreset = true;
+                targetPos = RobotConfig.ABD_SPEC; // sets target position for arm1 encoders
+                wristPos = 0;
+
+            } else if (gamepad2.dpad_down) {
+                runningPreset = true;
+                targetPos = RobotConfig.ABD_PICKUP;
+                wristPos = RobotConfig.WRIST_PICKUP;
+                intakePos = 1;
+            } else if (gamepad2.dpad_left) {
+                runningPreset = true;
+                targetPos = RobotConfig.ABD_FISH;
+                wristPos = 0;
+            }
+
+            // Power to the arm
+            RobotConfig.arm1.setPower(slideAbdPower);
+            RobotConfig.arm2.setPower(slideAbdPower);
+
+            RobotConfig.slideExtension.setPower(slideExtendPower);
+
+            // Wrist power
+            if (gamepad2.left_trigger > 0) {
+                wristPos = Math.min(1, wristPos + 0.025);
+            } else if (gamepad2.left_bumper) {
+                wristPos = Math.max(0, wristPos - 0.025);
+            }
+
+            RobotConfig.wrist1.setPosition(wristPos);
 
 
-      double slideExtendPower = gamepad2.left_stick_y;
-      double slideAbdPower = gamepad2.right_stick_y;
+            // Power to the intake
+            RobotConfig.intake.setPosition(intakePos);
 
-      // drive train controls
-      double y = -gamepad1.left_stick_y;
-      double x = gamepad1.left_stick_x * 1.1;
-      double turn = gamepad1.right_stick_x;
+            // Telemetry
 
-      // input: theta and power
-      // theta is where we want the direction the robot to go
-      // power is (-1) to 1 scale where increasing power will cause the engines to go faster
-      double theta = Math.atan2(y, x);
-      double power = Math.hypot(x, y);
-      double sin = Math.sin(theta - Math.PI / 4);
-      double cos = Math.cos(theta - Math.PI / 4);
-      // max variable allows to use the motors at its max power with out disabling it
-      double max = Math.max(Math.abs(sin), Math.abs(cos));
+            telemetry.addData("RUNNING PRESET:", runningPreset);
+            telemetry.addData("RUNMODE:", RobotConfig.arm1.getMode());
+            telemetry.addData("Abd 1 position:", RobotConfig.arm1.getCurrentPosition());
+            telemetry.addData("intake pos BETTER VERSION:", RobotConfig.intake.getPosition());
 
-      double frontLeftPower = power * cos / max + turn;
-      double frontRightPower = power * cos / max - turn;
-      double rearLeftPower = power * sin / max + turn;
-      double rearRightPower = power * sin / max - turn;
+            telemetry.addData("ENCODER:", RobotConfig.slideExtension.getCurrentPosition());
+            telemetry.addData("wrist pos:", RobotConfig.wrist1);
 
-      // Prevents the motors exceeding max power thus motors will not seize and act sporadically
-      if ((power + Math.abs(turn)) > 1) {
-        frontLeftPower /= power + turn;
-        frontRightPower /= power - turn;
-        rearLeftPower /= power + turn;
-        rearRightPower /= power - turn;
-      }
+            telemetry.addData("Intake pos (right is inverse): ", intakePos);
+            telemetry.addData("Slide extension power: ", slideExtendPower);
+            telemetry.addData("Slide abduction power: ", slideAbdPower);
+            telemetry.addData("Target abduction pos: ", targetPos);
+            telemetry.addData("Slide abduction pos: ", RobotConfig.arm1.getCurrentPosition());
+            telemetry.addData("Slide extension pos: ", RobotConfig.slideExtension.getCurrentPosition());
 
-      if (gamepad2.a && intakeReleased) {
-        intakePower = .45 - intakePower;
-        intakeReleased = false;
-      }
-      if (gamepad2.b && intakeReleased) {
-        intakePower = Math.max(0, intakePower - 0.1);
-        intakeReleased = false;
-      } else if (gamepad2.y && intakeReleased) {
-        intakePower = Math.min(1, intakePower + 0.1);
-        intakeReleased = false;
-      }
+            telemetry.addData("heading", dir);
 
-      if(!gamepad2.a && !gamepad2.b && !gamepad2.y) {
-        intakeReleased = true;
-      }
+            telemetry.addData("Wrist pos: ", wristPos);
+            telemetry.addData("arm correction factor: ", armCorrectionFactor);
+            telemetry.update();
 
-      // presets
-      if (gamepad2.dpad_up && !runningPreset) {
-        runningPreset = true;
-        arm1.setTargetPosition(ABD_TO_RUNG);
-        arm2.setTargetPosition(ABD_TO_RUNG);
-      } else if (gamepad2.dpad_down && !runningPreset) {
-        runningPreset = true;
-        arm1.setTargetPosition(ABD_DOWN);
-        arm2.setTargetPosition(ABD_DOWN);
-      } // if
-
-      // STOP ALL PRESETS
-      if (gamepad2.dpad_left) {
-        runningPreset = false;
-      }
-
-      if (runningPreset && arm1.getCurrentPosition() > arm1.getTargetPosition() - 5 && arm1.getCurrentPosition() < arm1.getTargetPosition() + 5) {
-        runningPreset = false;
-      }
-
-      // Power to the wheels
-      frontLeft.setPower(frontLeftPower);
-      rearLeft.setPower(rearLeftPower);
-      frontRight.setPower(frontRightPower);
-      rearRight.setPower(rearRightPower);
-
-      // Power to the arm
-      if(runningPreset) {
-        // TODO FIX
-        arm1.setPower(0.5);
-        arm2.setPower(0.5);
-      } else {
-        arm1.setPower(-slideAbdPower * 0.65);
-        arm2.setPower(-slideAbdPower * 0.65);
-      } // if else
-
-      slideExtension.setPower(slideExtendPower);
-
-      // Wrist power
-      if (gamepad2.left_trigger > 0) {
-        wristPos = Math.min(1, wristPos + 0.020);
-      } else if (gamepad2.left_bumper) {
-        wristPos = Math.max(0, wristPos - 0.020);
-      }
-
-      if (gamepad2.right_trigger > 0) {
-        wrist2Pos = Math.min(1, wrist2Pos + 0.020);
-      } else if (gamepad2.right_bumper) {
-        wrist2Pos = Math.max(0, wrist2Pos - 0.020);
-      }
-
-      wrist1.setPosition(wristPos);
-      wrist2.setPosition(wrist2Pos);
-
-
-      // Power to the intake
-      intake.setPosition(intakePower);
-
-
-      // Telemetry
-      telemetry.addData("RUNNING PRESET:", runningPreset);
-      telemetry.addData("RUNMODE:", arm1.getMode());
-      telemetry.addData("Normalized Abd 1 position:", normalizedAbdPos1);
-      telemetry.addData("Abd 1 position:", arm1.getCurrentPosition());
-      telemetry.addData("Abd 2 position:", arm2.getCurrentPosition());
-      telemetry.addData("Ext position:", slideExtension.getCurrentPosition());
-      telemetry.addData("wrist pos:", wrist1);
-      telemetry.addData("X", x);
-      telemetry.addData("Y", y);
-      telemetry.addData("Alpha", sensor.alpha());
-      telemetry.addData("Red  ", sensor.red());
-      telemetry.addData("Green", sensor.green());
-      telemetry.addData("Blue ", sensor.blue());
-      telemetry.addData("Intake pos (right is inverse): ", intakePower);
-      telemetry.addData("Slide extension power: ", slideExtendPower);
-      telemetry.addData("Slide abduction power: ", slideAbdPower);
-//      telemetry.addData("Wrist power: ", wristpower);
-      telemetry.update();
-
+        }
     }
-  }
 
 }
