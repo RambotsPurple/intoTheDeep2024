@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Ops.AUTO;
 
 import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
@@ -6,29 +6,31 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.hardware.ams.AMSColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.RobotConfig;
+import org.firstinspires.ftc.teamcode.RR.SparkFunOTOSDrive;
+
 @Config
-@Autonomous(name = "SampleAuto ", group = "Autonomous")
-public class SampleAuto extends LinearOpMode {
+@Autonomous(name = "Simple ", group = "Autonomous")
+public class SampleAutoSimple extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     int targetPos = 0;
+    int targetPos1 = -1;
 
     public class wrist{
         public class WristUp implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                RobotConfig.wrist1.setPosition(0.55);
+                RobotConfig.wrist1.setPosition(0.25);
                 return false;
             }
         }
@@ -39,7 +41,7 @@ public class SampleAuto extends LinearOpMode {
         public class WristDown implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                RobotConfig.wrist1.setPosition(1);
+                RobotConfig.wrist1.setPosition(0.8);
                 return false;
             }
         }
@@ -66,6 +68,8 @@ public class SampleAuto extends LinearOpMode {
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
+                telemetry.addLine("running lift");
+                telemetry.update();
                 if (!initialized) {
                     targetPos = RobotConfig.ABD_SPEC;
                     RobotConfig.arm1.setTargetPosition(targetPos);
@@ -159,32 +163,98 @@ public class SampleAuto extends LinearOpMode {
         }
     }
     public  class extend {
-        public class ExtendForward implements Action {
+
+        public class extendForward implements Action {
+            private boolean initialized = false;
+
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                targetPos = RobotConfig.EXT_BASKET; //make it full slide extend
-                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                while (RobotConfig.encoder.getCurrentPosition() > targetPos) {
-                    RobotConfig.slideExtension.setPower(-1);
+                telemetry.addLine("running ext");
+                telemetry.update();
+                if (!initialized) {
+//                    targetPos = RobotConfig.EXT_BASKET;
+//                    RobotConfig.slideExtension.setTargetPosition(targetPos);
+//                    RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                    RobotConfig.slideExtension.setVelocity(1000);
+
+                    targetPos = RobotConfig.EXT_BASKET; //make it full slide extend
+                    RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    runtime.reset();
+                    while (RobotConfig.slideExtension.getCurrentPosition() > targetPos) {
+                        RobotConfig.slideExtension.setPower(-1);
+                        telemetry.addData("ext pos:", RobotConfig.slideExtension.getCurrentPosition());
+                        telemetry.update();
+                        if (runtime.seconds() > 2.8) {
+                            break;
+
+                        }
+                    }
+                    initialized = true;
+//                    RobotConfig.slideExtension.setPower(0);
                 }
-                RobotConfig.slideExtension.setPower(0);
 
-                return false;
+                double pos = RobotConfig.slideExtension.getCurrentPosition();
+                packet.put("liftPos", pos);
+                if (pos < RobotConfig.EXT_BASKET) {
+                    return true;
+                } else {
+                    targetPos1 = 0;
+                    RobotConfig.slideExtension.setPower(targetPos);
+                    RobotConfig.slideExtension.setPower(targetPos);
+                    return false;
+                }
             }
-
-
         }
+//        public class ExtendForward implements Action {
+//            @Override
+//            public boolean run(@NonNull TelemetryPacket packet) {
+////                RobotConfig.slideExtension.setPower(0.7);
+////                runtime.reset();
+////                while (opModeIsActive() && (runtime.seconds() < 2.0)) {
+////                    telemetry.addData("Path", "Extend", runtime.seconds());
+////                    telemetry.update();
+////                }
+//
+////                targetPos = RobotConfig.EXT_BASKET; //make it full slide extend
+////                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+////
+////                while (RobotConfig.slideExtension.getCurrentPosition() > targetPos) {
+////                    RobotConfig.slideExtension.setPower(-1);
+////                    telemetry.addData("ext pos:", RobotConfig.slideExtension.getCurrentPosition());
+////                    telemetry.update();
+////                }
+//////                RobotConfig.slideExtension.setPower(0);
+////
+////                targetPos = RobotConfig.EXT_BASKET;
+////                RobotConfig.slideExtension.setTargetPosition(targetPos);
+////                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+////                RobotConfig.slideExtension.setVelocity(1000);
+//                return false;
+//            }
+//
+//
+//        }
         public Action extendForward() {
-            return new extend.ExtendForward();
+            return new extend.extendForward();
         }
 
         public class ExtendBackwards implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
+//                RobotConfig.slideExtension.setPower(-0.7);
+//                runtime.reset();
+//                while (opModeIsActive() && (runtime.seconds() < 2.0)) {
+//                    telemetry.addData("Path", "Extend", runtime.seconds());
+//                    telemetry.update();
+//                }
                 targetPos = 0; //make it full slide extend
                 RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                while (RobotConfig.encoder.getCurrentPosition() < 0) {
+                runtime.reset();
+                while (RobotConfig.slideExtension.getCurrentPosition() < 0) {
                     RobotConfig.slideExtension.setPower(1);
+                    if (runtime.seconds() > 2.8) {
+                        break;
+                    }
                 }
                 RobotConfig.slideExtension.setPower(0);
 
@@ -205,7 +275,7 @@ public class SampleAuto extends LinearOpMode {
         RobotConfig.initialize(hardwareMap);
 
 
-        Pose2d initialPose = new Pose2d(11.5, 60, Math.toRadians(-  90));
+        Pose2d initialPose = new Pose2d(11.5, 60, Math.toRadians(-90));
         SparkFunOTOSDrive drive = new SparkFunOTOSDrive(hardwareMap, initialPose);
 //        instances
         Claw claw = new Claw();
@@ -218,27 +288,37 @@ public class SampleAuto extends LinearOpMode {
         //drive to basket
         TrajectoryActionBuilder DriveToBaseket = drive.actionBuilder(initialPose)
                 .setTangent(Math.PI/2)
-                .lineToY(54)
+                .lineToY(56)
                 .setTangent(0)
-                .lineToXSplineHeading(40, 5*Math.PI / 4)
-                .strafeTo(new Vector2d(59, 61))
-                .waitSeconds(2);
+                .lineToX(52)
+                .turnTo(Math.toRadians(225))
+                .lineToX(57);
+//
+
 
         //go back after grabbing the sample
-        TrajectoryActionBuilder MoveBackToBasket = drive.actionBuilder(new Pose2d(48, 45,90))
-             .setTangent(0)
-                .splineToConstantHeading(new Vector2d(56, 56), Math.PI / 2);
-
-        TrajectoryActionBuilder FirstSample = drive.actionBuilder(new Pose2d(60, 60,225))
-                .setTangent(0)
-                .splineToConstantHeading(new Vector2d(46, 40), Math.PI / 2)
-                .turn(Math.toRadians(45))
+        TrajectoryActionBuilder MoveBackToBasket1 = drive.actionBuilder(new Pose2d(48, 38,270))
+//                .lineToY(54)
+//                .setTangent(0)
+//                .lineToX(58)
+                .turnTo(Math.toRadians(225))
                 .waitSeconds(2);
 
-//        TrajectoryActionBuilder SecondSample = drive.actionBuilder(new Pose2d(56, 56,225))
-//                .setTangent(0)
-//                .splineToConstantHeading(new Vector2d(48, 38), Math.PI / 2)
-//                .turn(Math.toRadians(45));
+        TrajectoryActionBuilder FirstSample = drive.actionBuilder(new Pose2d(56, 58,225))
+                .turnTo(Math.toRadians(270))
+                .setTangent(0)
+                .lineToX(44)
+                .setTangent(Math.PI/2)
+                .lineToY(38)
+                .waitSeconds(2);
+
+        TrajectoryActionBuilder SecondSample = drive.actionBuilder(new Pose2d(56, 56,225))
+                .turnTo(Math.toRadians(270))
+                .lineToY(38)
+                .lineToY(54)
+                .turnTo(Math.toRadians(225))
+                .waitSeconds(2);
+
 //
 //        TrajectoryActionBuilder ThridSample = drive.actionBuilder(new Pose2d(56, 56,225))
 //                .setTangent(0)
@@ -247,7 +327,11 @@ public class SampleAuto extends LinearOpMode {
 
         //park at rung
         Action trajectoryActionCloseOut = DriveToBaseket.endTrajectory().fresh()
-                .setTangent(0)
+                .turnTo(Math.toRadians(270))
+//                .lineToY(0)
+//                .setTangent(0)
+//                .lineToX(30)
+
                 .splineToConstantHeading(new Vector2d(30, 5), Math.PI / 2)
                 .build();
 
@@ -263,19 +347,26 @@ public class SampleAuto extends LinearOpMode {
         if (isStopRequested()) return;
 
         Action driveToBaseket = DriveToBaseket.build();
-        Action moveBackToBasket = MoveBackToBasket.build();
+        Action moveBackToBasket1 = MoveBackToBasket1.build();
         Action firstSample = FirstSample.build();
+        Action secondSample = SecondSample.build();
         Actions.runBlocking(
                 new SequentialAction(
 //                        drops preplaced sample after arriving to basket
                         lift.liftUp(),
+                        wrist.wristDown(),
+                        driveToBaseket,
                         extend.extendForward(),
                         wrist.wristUp(),
-                        driveToBaseket,
-                        claw.openClaw(),
-//                        retracts
-                        lift.liftDown(),
-                        extend.extendBackwards()
+
+//                        firstSample,
+//                        extend.extendBackwards(),
+                        claw.openClaw()
+//                        moveBackToBasket1,
+//                        secondSample
+
+////                        retracts
+//                        lift.liftDown(),
 ////                        wrist.wristDown(),
 ////                        goes to teh fiurst sample and picks up
 //                        firstSample,

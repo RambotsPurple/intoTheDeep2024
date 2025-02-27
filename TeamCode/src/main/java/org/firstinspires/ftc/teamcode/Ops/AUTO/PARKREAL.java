@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Ops.AUTO;
 
 import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -14,12 +13,42 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.RobotConfig;
+import org.firstinspires.ftc.teamcode.RR.SparkFunOTOSDrive;
 
 @Config
-@Autonomous(name = "Real Auton ", group = "Autonomous")
-public class AutoRedSpeci extends LinearOpMode {
+@Autonomous(name = "JustPark ", group = "Autonomous")
+public class PARKREAL extends LinearOpMode {
+    private ElapsedTime runtime = new ElapsedTime();
 
     int targetPos = 0;
+
+    public class wrist{
+        public class WristUp implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                RobotConfig.wrist1.setPosition(0.55);
+                return false;
+            }
+        }
+        public  Action wristUp() {
+            return new WristUp();
+        }
+
+        public class WristDown implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                RobotConfig.wrist1.setPosition(1);
+                return false;
+            }
+        }
+        public Action wristDown() {
+            return new WristDown();
+        }
+
+    }
 
     public class Lift {
 
@@ -111,7 +140,7 @@ public class AutoRedSpeci extends LinearOpMode {
         public class CloseClaw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                RobotConfig.wrist1.setPosition(0.55);
+                RobotConfig.intake.setPosition(0.55);
                 return false;
             }
         }
@@ -122,7 +151,7 @@ public class AutoRedSpeci extends LinearOpMode {
         public class OpenClaw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                RobotConfig.wrist1.setPosition(1.0);
+                RobotConfig.intake.setPosition(1.0);
                 return false;
             }
         }
@@ -130,143 +159,109 @@ public class AutoRedSpeci extends LinearOpMode {
             return new OpenClaw();
         }
     }
+    public  class extend {
+        public class ExtendForward implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                targetPos = RobotConfig.EXT_BASKET;//make it full slide extend
+                RobotConfig.slideExtension.setTargetPosition(targetPos);
+                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                RobotConfig.slideExtension.setVelocity(3000);
+
+                return false;
+            }
+
+
+        }
+        public Action extendForward() {
+            return new extend.ExtendForward();
+        }
+
+        public class ExtendBackwards implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                targetPos = RobotConfig.EXT_REG;//make it full slide extend
+                RobotConfig.slideExtension.setTargetPosition(targetPos);
+                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                RobotConfig.slideExtension.setVelocity(3000);
+                return false;
+            }
+
+
+        }
+        public Action extendBackwards() {
+            return new extend.ExtendBackwards();
+        }
+
+    }
 
     @Override
     public void runOpMode() {
         RobotConfig.initialize(hardwareMap);
 
-        ParallelAction moveAndTurn = new ParallelAction(
 
-        );
-
-        Pose2d initialPose = new Pose2d(0, -60, Math.toRadians(90));
+        Pose2d initialPose = new Pose2d(-11, 60, Math.toRadians(-  90));
         SparkFunOTOSDrive drive = new SparkFunOTOSDrive(hardwareMap, initialPose);
+//        instances
         Claw claw = new Claw();
-        // make a Lift instance
         Lift lift = new Lift();
-
+        wrist wrist = new wrist();
+        extend extend = new extend();
 //        @TODO trajectorty
 
-        TrajectoryActionBuilder firstClip = drive.actionBuilder(initialPose)
-                //start
-                .lineToY(-34)
-                //rotate
-                .setTangent(Math.PI)
-                .lineToX(33)
-                //x
-                .setTangent(Math.PI/2)
-                .lineToY(-5)
-                .setTangent(Math.PI)
-                .lineToX(45)
-                .waitSeconds(1)
 
-                .setTangent(Math.PI/2)
-                .lineToY(-40)
-                .lineToY(-5)
+        //drive to basket
+        TrajectoryActionBuilder DriveToBaseket = drive.actionBuilder(initialPose)
+                .setTangent(0)
+                .lineToXSplineHeading(40, 5*Math.PI / 4)
+                .strafeTo(new Vector2d(58, 58))
+                .waitSeconds(4);
 
-                .setTangent(Math.PI)
-                .lineToX(54)
-                .waitSeconds(1)
+        //go back after grabbing the sample
+        TrajectoryActionBuilder MoveBackToBasket = drive.actionBuilder(new Pose2d(48, 45,0))
+                .setTangent(0)
+                .splineToConstantHeading(new Vector2d(56, 56), Math.PI / 2);
 
-                .setTangent(Math.PI/2)
-                .lineToY(-40)
-                .lineToY(-5)
-                .waitSeconds(1)
+        TrajectoryActionBuilder FirstSample = drive.actionBuilder(new Pose2d(56, 56,225))
+                .setTangent(0)
+                .splineToConstantHeading(new Vector2d(48, 38), Math.PI / 2)
+                .turn(Math.toRadians(45));
+//
+//        TrajectoryActionBuilder SecondSample = drive.actionBuilder(new Pose2d(56, 56,225))
+//                .setTangent(0)
+//                .splineToConstantHeading(new Vector2d(48, 38), Math.PI / 2)
+//                .turn(Math.toRadians(45));
+//
+//        TrajectoryActionBuilder ThridSample = drive.actionBuilder(new Pose2d(56, 56,225))
+//                .setTangent(0)
+//                .splineToConstantHeading(new Vector2d(48, 38), Math.PI / 2)
+//                .turn(Math.toRadians(45));
 
-                .setTangent(Math.PI)
-                .waitSeconds(1)
-                .lineToX(62)
-
-                .setTangent(Math.PI/2)
-                .lineToY(-40)
-
-                .waitSeconds(1)
-
-                .setTangent(Math.PI)
-                .lineToX(40)
-                .waitSeconds(1)
-
-                .turn(Math.toRadians(90))
-
-                .setTangent(Math.PI)  // Inverse of Math.PI
-                .lineToX(-48)  // Inverse of 48
-                .setTangent(Math.PI/-2)  // Inverse of Math.PI/2
-                .lineToY(55)  // Inverse of -55
-                .lineToY(5)  // Inverse of -5
-                .setTangent(Math.PI)  // Inverse of Math.PI
-                .lineToX(-54)  // Inverse of 54
-                .setTangent(Math.PI/-2)  // Inverse of Math.PI/2
-                .lineToY(55)  // Inverse of -55
-                .lineToY(5)  // Inverse of -5
-                .setTangent(Math.PI)  // Inverse of Math.PI
-                .lineToX(-62)  // Inverse of 62
-                .setTangent(Math.PI/-2)  // Inverse of Math.PI/2
-                .lineToY(55)  // Inverse of -55
-                .setTangent(Math.PI)  // Inverse of Math.PI
-                .lineToX(-40)  // Inverse of 40
-                .turn(Math.toRadians(-90))  // Inverse of 90°
-
-
-// Clips
-                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
-                .lineToY(34)  // Inverse of -34
-                .turn(Math.toRadians(-180))  // Inverse of 180°
-                .turn(Math.toRadians(-180))  // Inverse of 180°
-                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
-                .lineToY(55)  // Inverse of -55
-
-                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
-                .lineToY(34)  // Inverse of -34
-                .turn(Math.toRadians(-180))  // Inverse of 180°
-                .turn(Math.toRadians(-180))  // Inverse of 180°
-                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
-                .lineToY(55)  // Inverse of -55
-
-                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
-                .lineToY(34)  // Inverse of -34
-                .turn(Math.toRadians(-180))  // Inverse of 180°
-                .turn(Math.toRadians(-180))  // Inverse of 180°
-                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
-                .lineToY(55)  // Inverse of -55
-
-                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
-                .lineToY(34)  // Inverse of -34
-                .turn(Math.toRadians(-180))  // Inverse of 180°
-                .turn(Math.toRadians(-180))  // Inverse of 180°
-                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
-                .lineToY(55)  // Inverse of -55
-
-                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
-                .lineToY(34)  // Inverse of -34
-                .turn(Math.toRadians(-180))  // Inverse of 180°
-                .turn(Math.toRadians(-180))  // Inverse of 180°
-                .setTangent(Math.PI/-6)  // Inverse of Math.PI/-6
-                .waitSeconds(3);
-
-        Action trajectoryActionCloseOut = firstClip.endTrajectory().fresh()
-                .lineToY(-5)
+        //park at rung
+        Action trajectoryActionCloseOut = DriveToBaseket.endTrajectory().fresh()
+                .setTangent(0)
+                .lineToX(-60)
                 .build();
-
         // actions that need to happen on init; for instance, a claw tightening.
         Actions.runBlocking(claw.closeClaw());
-
-
-
+        while (!isStopRequested() && !opModeIsActive()) {
+            telemetry.addLine("We're the goats don't worry drivers, WE ARE THEM!");
+            telemetry.update();
+        }
 
         waitForStart();
 
         if (isStopRequested()) return;
 
-        Action trajectoryActionChosen;
 
 
-        trajectoryActionChosen = firstClip.build();
+        Action driveToBaseket = DriveToBaseket.build();
+        Action moveBackToBasket = MoveBackToBasket.build();
+        Action firstSample = FirstSample.build();
         Actions.runBlocking(
                 new SequentialAction(
-                        trajectoryActionChosen,
-                        lift.liftUp(),
-                        claw.openClaw(),
-                        lift.liftDown(),
+//                        drops preplaced sample after arriving to basket
+//                      @TODO more add second and third possibly a fourth
                         trajectoryActionCloseOut
                 )
         );
