@@ -34,12 +34,12 @@ public class RobotConfig {
     // TODO TUNE
     public static final  int ABD_SPEC = -2933;
     public final static int ABD_FISH = 0;
-    public final static int EXT_BASKET = -62; //@TODO  get the encoder values
+    public final static int EXT_BASKET = -64; //@TODO  get the encoder values
 
     public final static  int EXT_REG = 0;
     public final static int ABD_PICKUP = -883;
     public final static double WRIST_START = 0.16;
-    public final static double WRIST_PICKUP = 0.37;
+    public final static double WRIST_PICKUP = 0;
 
 
     public static void initialize(HardwareMap hw) {
