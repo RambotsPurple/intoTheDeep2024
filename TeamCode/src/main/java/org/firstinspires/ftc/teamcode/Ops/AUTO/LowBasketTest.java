@@ -242,7 +242,7 @@ public class LowBasketTest extends LinearOpMode {
 
 
         //drive to basket
-        TrajectoryActionBuilder DriveToBaseket = drive.actionBuilder(initialPose)
+        TrajectoryActionBuilder DriveToBasket = drive.actionBuilder(initialPose)
                 .setTangent(Math.PI/2)
                 .lineToY(56)
                 .setTangent(0)
@@ -282,7 +282,7 @@ public class LowBasketTest extends LinearOpMode {
 //                .turn(Math.toRadians(45));
 
         //park at rung
-        Action trajectoryActionCloseOut = DriveToBaseket.endTrajectory().fresh()
+        Action trajectoryActionCloseOut = DriveToBasket.endTrajectory().fresh()
                 .turnTo(Math.toRadians(270))
 //                .lineToY(0)
 //                .setTangent(0)
@@ -302,7 +302,7 @@ public class LowBasketTest extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        Action driveToBaseket = DriveToBaseket.build();
+        Action driveToBaseket = DriveToBasket.build();
         Action moveBackToBasket1 = MoveBackToBasket1.build();
         Action firstSample = FirstSample.build();
         Action secondSample = SecondSample.build();
