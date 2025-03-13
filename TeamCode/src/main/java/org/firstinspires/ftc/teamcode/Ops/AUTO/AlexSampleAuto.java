@@ -283,16 +283,18 @@ public class AlexSampleAuto extends LinearOpMode {
         Lift lift = new Lift();
         wrist wrist = new wrist();
         extend extend = new extend();
-//        @TODO trajectorty
+//        @TODO FIX THE CLAW/ARM
 
 
         //drive to basket
         TrajectoryActionBuilder ToBasket = drive.actionBuilder(initialPose)
-                .strafeToLinearHeading(new Vector2d(-55, -54), Math.toRadians(225));
+                .strafeToLinearHeading(new Vector2d(-55, -54), Math.toRadians(225))
+                .waitSeconds(2);
 
 
         TrajectoryActionBuilder FirstSample = drive.actionBuilder(basketPose)
-                .strafeToLinearHeading(new Vector2d(-48, -38), Math.toRadians(90));
+                .strafeToLinearHeading(new Vector2d(-48, -38), Math.toRadians(90))
+                .waitSeconds(2);
 
 
 
@@ -317,7 +319,6 @@ public class AlexSampleAuto extends LinearOpMode {
         Action firstSample = FirstSample.build();
         Actions.runBlocking(
                 new SequentialAction(
-//                        drops preplaced sample after arriving to basket
                         lift.liftUp(),
                         wrist.wristDown(),
                         toBasket,
