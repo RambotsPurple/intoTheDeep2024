@@ -17,7 +17,10 @@ public class MeepMeepTesting {
                 .setColorScheme(new ColorSchemeRedDark())
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 12)
                 .build();
-        main.runAction(main.getDrive().actionBuilder(new Pose2d(-11.5, -60, Math.toRadians(90)))
+
+        Pose2d sample  = new Pose2d(-11.5, -60, Math.toRadians(90));
+        Pose2d Speci  = new Pose2d(11.5, -60, Math.toRadians(90));
+        main.runAction(main.getDrive().actionBuilder(Speci)
 
 //                  Sample 0+2
 //
@@ -32,9 +35,9 @@ public class MeepMeepTesting {
 //                .strafeToLinearHeading(new Vector2d(-30, -5), Math.PI / 2)
 //
 //                Speci 3+0
-                .strafeToLinearHeading(new Vector2d(-11.5, -35), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(11.5, -35), Math.toRadians(90))
                 .strafeToLinearHeading(new Vector2d(30, -35), Math.toRadians(270))
-                .splineToConstantHeading(new Vector2d(35, -15), Math.PI / 2)
+                .splineToConstantHeading(new Vector2d(35, -15), Math.toRadians(90))
                 .strafeTo(new Vector2d(49, -13))
 //                .splineToSplineHeading(new Pose2d(47, -16, 0), Math.toRadians(270))
                 .strafeTo(new Vector2d(49, -55))
