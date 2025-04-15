@@ -205,35 +205,36 @@ public class AlexSampleAuto extends LinearOpMode {
                 }
             }
         }
-//        public class ExtendForward implements Action {
-//            @Override
-//            public boolean run(@NonNull TelemetryPacket packet) {
-////                RobotConfig.slideExtension.setPower(0.7);
-////                runtime.reset();
-////                while (opModeIsActive() && (runtime.seconds() < 2.0)) {
-////                    telemetry.addData("Path", "Extend", runtime.seconds());
-////                    telemetry.update();
-////                }
-//
-        ////                targetPos = RobotConfig.EXT_BASKET; //make it full slide extend
-        ////                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        ////
-        ////                while (RobotConfig.slideExtension.getCurrentPosition() > targetPos) {
-        ////                    RobotConfig.slideExtension.setPower(-1);
-        ////                    telemetry.addData("ext pos:", RobotConfig.slideExtension.getCurrentPosition());
-        ////                    telemetry.update();
-        ////                }
-        //////                RobotConfig.slideExtension.setPower(0);
-        ////
-        ////                targetPos = RobotConfig.EXT_BASKET;
-        ////                RobotConfig.slideExtension.setTargetPosition(targetPos);
-        ////                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        ////                RobotConfig.slideExtension.setVelocity(1000);
-//                return false;
-//            }
-//
-//
-//        }
+
+        public class ExtendForward implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                RobotConfig.slideExtension.setPower(0.7);
+                runtime.reset();
+                while (opModeIsActive() && (runtime.seconds() < 2.0)) {
+                    telemetry.addData("Path", "Extend", runtime.seconds());
+                    telemetry.update();
+                }
+
+                        targetPos = RobotConfig.EXT_BASKET; //make it full slide extend
+                        RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+                        while (RobotConfig.slideExtension.getCurrentPosition() > targetPos) {
+                            RobotConfig.slideExtension.setPower(-1);
+                            telemetry.addData("ext pos:", RobotConfig.slideExtension.getCurrentPosition());
+                            telemetry.update();
+                        }
+        //                RobotConfig.slideExtension.setPower(0);
+
+                        targetPos = RobotConfig.EXT_BASKET;
+                        RobotConfig.slideExtension.setTargetPosition(targetPos);
+                        RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        RobotConfig.slideExtension.setVelocity(1000);
+                return false;
+            }
+
+
+        }
         public Action extendForward() {
             return new extend.extendForward();
         }
