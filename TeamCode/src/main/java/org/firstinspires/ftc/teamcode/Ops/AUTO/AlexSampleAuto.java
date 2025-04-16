@@ -320,13 +320,13 @@ public class AlexSampleAuto extends LinearOpMode {
         Action firstSample = FirstSample.build();
         Actions.runBlocking(
                 new SequentialAction(
-                        lift.liftUp(),
-                        wrist.wristDown(),
+//                        lift.liftUp(),
+//                        wrist.wristDown(),
                         toBasket,
-                        extend.extendForward(),
-                        wrist.wristUp(),
-                        firstSample,
-                        claw.openClaw(),
+//                        extend.extendForward(),
+//                        wrist.wristUp(),
+//                        firstSample,
+//                        claw.openClaw(),
                         park
                 )
         );

@@ -233,7 +233,7 @@ public class LowBasketTest extends LinearOpMode {
     public void runOpMode() {
         RobotConfig.initialize(hardwareMap);
 
-        Pose2d initialPose = new Pose2d(-11.5, -60, Math.toRadians(-90));
+        Pose2d initialPose = new Pose2d(-11.5, -60, Math.toRadians(90));
         SparkFunOTOSDrive drive = new SparkFunOTOSDrive(hardwareMap, initialPose);
 
         // instances
@@ -247,7 +247,7 @@ public class LowBasketTest extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(55, -60), Math.toRadians(0));
 
         //go back after grabbing the sample
-        TrajectoryActionBuilder toBasket = drive.actionBuilder(new Pose2d(-55, -60, Math.toRadians(225)))
+        TrajectoryActionBuilder toBasket = drive.actionBuilder(new Pose2d(55, -60, Math.toRadians(0)))
                 .strafeToLinearHeading(new Vector2d(-55, -54), Math.toRadians(45));
 
         //park at rung
@@ -259,6 +259,7 @@ public class LowBasketTest extends LinearOpMode {
         Actions.runBlocking(claw.closeClaw());
         while (!isStopRequested() && !opModeIsActive()) {
             telemetry.addLine("We're the goats don't worry drivers, WE ARE THEM!");
+            telemetry.addLine("-11.5" + ", -60");
             telemetry.update();
         }
 
