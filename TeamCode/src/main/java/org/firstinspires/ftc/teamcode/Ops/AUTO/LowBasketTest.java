@@ -217,10 +217,8 @@ public class LowBasketTest extends LinearOpMode {
                 }
                 RobotConfig.slideExtension.setPower(0);
 
-
                 return false;
             }
-
 
         }
         public Action extendBackwards() {
@@ -259,7 +257,9 @@ public class LowBasketTest extends LinearOpMode {
         Actions.runBlocking(claw.closeClaw());
         while (!isStopRequested() && !opModeIsActive()) {
             telemetry.addLine("We're the goats don't worry drivers, WE ARE THEM!");
-            telemetry.addLine("-11.5" + ", -60");
+            telemetry.addData("x", drive.pose.position.x);
+            telemetry.addData("y", drive.pose.position.y);
+            telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
             telemetry.update();
         }
 

@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.RobotConfig;
 import org.firstinspires.ftc.teamcode.RR.SparkFunOTOSDrive;
 
 @Config
-@Autonomous(name = "auton testing", group = "Autonomous")
+@Autonomous(name = "Low Basket Test", group = "Autonomous")
 public class autonTesting extends LinearOpMode {
     int targetPos = 0;
 
@@ -217,10 +217,8 @@ public class autonTesting extends LinearOpMode {
                 }
                 RobotConfig.slideExtension.setPower(0);
 
-
                 return false;
             }
-
 
         }
         public Action extendBackwards() {
@@ -244,21 +242,23 @@ public class autonTesting extends LinearOpMode {
 
         //drive to basket
         TrajectoryActionBuilder moveToPickup = drive.actionBuilder(initialPose)
-                .strafeToLinearHeading(new Vector2d(55, -60), Math.toRadians(90));
+                .strafeToLinearHeading(new Vector2d(55, -60), Math.toRadians(0));
 
         //go back after grabbing the sample
-        TrajectoryActionBuilder toBasket = drive.actionBuilder(new Pose2d(-55, -60, Math.toRadians(90)))
+        TrajectoryActionBuilder toBasket = drive.actionBuilder(new Pose2d(55, -60, Math.toRadians(0)))
                 .strafeToLinearHeading(new Vector2d(-55, -54), Math.toRadians(45));
 
         //park at rung
         Action trajectoryActionCloseOut = moveToPickup.endTrajectory().fresh()
-                .turnTo(Math.toRadians(270))
                 .build();
 
         // actions that need to happen on init; for instance, a claw tightening.
         Actions.runBlocking(claw.closeClaw());
         while (!isStopRequested() && !opModeIsActive()) {
             telemetry.addLine("We're the goats don't worry drivers, WE ARE THEM!");
+            telemetry.addData("x", drive.pose.position.x);
+            telemetry.addData("y", drive.pose.position.y);
+            telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
             telemetry.update();
         }
 
@@ -271,9 +271,22 @@ public class autonTesting extends LinearOpMode {
         Actions.runBlocking(
                 new SequentialAction(
                         pickup,
+                        trajectoryActionCloseOut
+                )
+        );
+        telemetry.addData("x", drive.pose.position.x);
+        telemetry.addData("y", drive.pose.position.y);
+        telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
+        telemetry.update();
+        Actions.runBlocking(
+                new SequentialAction(
                         basket,
                         trajectoryActionCloseOut
                 )
         );
+        telemetry.addData("x", drive.pose.position.x);
+        telemetry.addData("y", drive.pose.position.y);
+        telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
+        telemetry.update();
     }
 }
