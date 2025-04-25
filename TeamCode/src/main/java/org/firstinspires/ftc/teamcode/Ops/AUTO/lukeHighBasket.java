@@ -241,13 +241,17 @@ public class lukeHighBasket extends LinearOpMode {
         wrist wrist = new wrist();
         extend extend = new extend();
 
-        //drive to basket
+        // pickup
         TrajectoryActionBuilder moveToPickup = drive.actionBuilder(initialPose)
-                .strafeToLinearHeading(new Vector2d(35, -55), Math.toRadians(0));
+                .strafeToLinearHeading(new Vector2d(35, -67), Math.toRadians(0));
 
-        //go back after grabbing the sample
-        TrajectoryActionBuilder toBasket = drive.actionBuilder(new Pose2d(35, -55, Math.toRadians(0)))
-                .strafeToLinearHeading(new Vector2d(-55, -54), Math.toRadians(45));
+        // basket
+        TrajectoryActionBuilder toBasket = drive.actionBuilder(new Pose2d(35, -67, Math.toRadians(0)))
+                .strafeToLinearHeading(new Vector2d(-63, -59), Math.toRadians(45));
+
+        // park
+        TrajectoryActionBuilder park = drive.actionBuilder(new Pose2d(-63, -59, Math.toRadians(45)))
+                .strafeToLinearHeading(new Vector2d(35, -55), Math.toRadians(0));
 
         // traj action close out
         Action trajectoryActionCloseOut = moveToPickup.endTrajectory().fresh()
@@ -269,6 +273,7 @@ public class lukeHighBasket extends LinearOpMode {
 
         Action pickup = moveToPickup.build();
         Action basket = toBasket.build();
+        Action parking = park.build();
         Actions.runBlocking(
                 new SequentialAction(
                         claw.openClaw(),
@@ -280,6 +285,7 @@ public class lukeHighBasket extends LinearOpMode {
                         extend.extendForward(),
                         wrist.wristUp(),
                         claw.openClaw(),
+                        parking,
                         trajectoryActionCloseOut
                 )
         );
