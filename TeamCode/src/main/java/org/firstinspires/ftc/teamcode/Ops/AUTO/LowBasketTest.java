@@ -18,7 +18,8 @@ import org.firstinspires.ftc.teamcode.RobotConfig;
 import org.firstinspires.ftc.teamcode.RR.SparkFunOTOSDrive;
 
 @Config
-@Autonomous(name = "Low Basket Test", group = "Autonomous")
+
+@Autonomous(name = "real low basket pls work", group = "Autonomous")
 public class LowBasketTest extends LinearOpMode {
     int targetPos = 0;
 
@@ -242,10 +243,10 @@ public class LowBasketTest extends LinearOpMode {
 
         //drive to basket
         TrajectoryActionBuilder moveToPickup = drive.actionBuilder(initialPose)
-                .strafeToLinearHeading(new Vector2d(55, -60), Math.toRadians(0));
+                .strafeToLinearHeading(new Vector2d(35, -55), Math.toRadians(0));
 
         //go back after grabbing the sample
-        TrajectoryActionBuilder toBasket = drive.actionBuilder(new Pose2d(55, -60, Math.toRadians(0)))
+        TrajectoryActionBuilder toBasket = drive.actionBuilder(new Pose2d(35, -55, Math.toRadians(0)))
                 .strafeToLinearHeading(new Vector2d(-55, -54), Math.toRadians(45));
 
         //park at rung
@@ -271,8 +272,8 @@ public class LowBasketTest extends LinearOpMode {
         Action basket = toBasket.build();
         Actions.runBlocking(
                 new SequentialAction(
-                        pickup,
                         claw.openClaw(),
+                        pickup,
                         claw.closeClaw(),
                         basket,
                         lift.liftUp(),

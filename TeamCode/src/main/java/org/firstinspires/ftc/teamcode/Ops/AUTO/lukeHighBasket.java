@@ -13,20 +13,20 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotConfig;
 import org.firstinspires.ftc.teamcode.RR.SparkFunOTOSDrive;
 
 @Config
-@Autonomous(name = "Simpleidk ", group = "Autonomous")
-public class LowRungTest extends LinearOpMode {
-    private ElapsedTime runtime = new ElapsedTime();
 
+@Autonomous(name = "real low basket pls work", group = "Autonomous")
+public class lukeHighBasket extends LinearOpMode {
     int targetPos = 0;
-    int targetPos1 = -1;
 
     public class wrist{
+        public wrist () {
+
+        }
         public class WristUp implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
@@ -139,7 +139,6 @@ public class LowRungTest extends LinearOpMode {
     // Claw component
     public class Claw {
 
-
         public class CloseClaw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
@@ -179,15 +178,10 @@ public class LowRungTest extends LinearOpMode {
 
                     targetPos = RobotConfig.EXT_BASKET; //make it full slide extend
                     RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    runtime.reset();
                     while (RobotConfig.slideExtension.getCurrentPosition() > targetPos) {
                         RobotConfig.slideExtension.setPower(-1);
                         telemetry.addData("ext pos:", RobotConfig.slideExtension.getCurrentPosition());
                         telemetry.update();
-                        if (runtime.seconds() > 2.8) {
-                            break;
-
-                        }
                     }
                     initialized = true;
 //                    RobotConfig.slideExtension.setPower(0);
@@ -198,42 +192,12 @@ public class LowRungTest extends LinearOpMode {
                 if (pos < RobotConfig.EXT_BASKET) {
                     return true;
                 } else {
-                    targetPos1 = 0;
                     RobotConfig.slideExtension.setPower(targetPos);
                     RobotConfig.slideExtension.setPower(targetPos);
                     return false;
                 }
             }
         }
-        //        public class ExtendForward implements Action {
-//            @Override
-//            public boolean run(@NonNull TelemetryPacket packet) {
-////                RobotConfig.slideExtension.setPower(0.7);
-////                runtime.reset();
-////                while (opModeIsActive() && (runtime.seconds() < 2.0)) {
-////                    telemetry.addData("Path", "Extend", runtime.seconds());
-////                    telemetry.update();
-////                }
-//
-////                targetPos = RobotConfig.EXT_BASKET; //make it full slide extend
-////                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-////
-////                while (RobotConfig.slideExtension.getCurrentPosition() > targetPos) {
-////                    RobotConfig.slideExtension.setPower(-1);
-////                    telemetry.addData("ext pos:", RobotConfig.slideExtension.getCurrentPosition());
-////                    telemetry.update();
-////                }
-//////                RobotConfig.slideExtension.setPower(0);
-////
-////                targetPos = RobotConfig.EXT_BASKET;
-////                RobotConfig.slideExtension.setTargetPosition(targetPos);
-////                RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-////                RobotConfig.slideExtension.setVelocity(1000);
-//                return false;
-//            }
-//
-//
-//        }
         public Action extendForward() {
             return new extend.extendForward();
         }
@@ -249,19 +213,13 @@ public class LowRungTest extends LinearOpMode {
 //                }
                 targetPos = 0; //make it full slide extend
                 RobotConfig.slideExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                runtime.reset();
                 while (RobotConfig.slideExtension.getCurrentPosition() < 0) {
                     RobotConfig.slideExtension.setPower(1);
-                    if (runtime.seconds() > 2.8) {
-                        break;
-                    }
                 }
                 RobotConfig.slideExtension.setPower(0);
 
-
                 return false;
             }
-
 
         }
         public Action extendBackwards() {
@@ -274,71 +232,34 @@ public class LowRungTest extends LinearOpMode {
     public void runOpMode() {
         RobotConfig.initialize(hardwareMap);
 
-
-        Pose2d initialPose = new Pose2d(11.5, 60, Math.toRadians(-90));
+        Pose2d initialPose = new Pose2d(-11.5, -60, Math.toRadians(90));
         SparkFunOTOSDrive drive = new SparkFunOTOSDrive(hardwareMap, initialPose);
-//        instances
+
+        // instances
         Claw claw = new Claw();
         Lift lift = new Lift();
         wrist wrist = new wrist();
         extend extend = new extend();
-//        @TODO trajectorty
-
 
         //drive to basket
-        TrajectoryActionBuilder DriveToBaseket = drive.actionBuilder(initialPose)
-                .setTangent(Math.PI/2)
-                .lineToY(56)
-                .setTangent(0)
-                .lineToX(52)
-                .turnTo(Math.toRadians(225))
-                .lineToX(57);
-//
-
+        TrajectoryActionBuilder moveToPickup = drive.actionBuilder(initialPose)
+                .strafeToLinearHeading(new Vector2d(35, -55), Math.toRadians(0));
 
         //go back after grabbing the sample
-        TrajectoryActionBuilder MoveBackToBasket1 = drive.actionBuilder(new Pose2d(48, 38,270))
-//                .lineToY(54)
-//                .setTangent(0)
-//                .lineToX(58)
-                .turnTo(Math.toRadians(225))
-                .waitSeconds(2);
+        TrajectoryActionBuilder toBasket = drive.actionBuilder(new Pose2d(35, -55, Math.toRadians(0)))
+                .strafeToLinearHeading(new Vector2d(-55, -54), Math.toRadians(45));
 
-        TrajectoryActionBuilder FirstSample = drive.actionBuilder(new Pose2d(56, 58,225))
-                .turnTo(Math.toRadians(270))
-                .setTangent(0)
-                .lineToX(44)
-                .setTangent(Math.PI/2)
-                .lineToY(38)
-                .waitSeconds(2);
-
-        TrajectoryActionBuilder SecondSample = drive.actionBuilder(new Pose2d(56, 56,225))
-                .turnTo(Math.toRadians(270))
-                .lineToY(38)
-                .lineToY(54)
-                .turnTo(Math.toRadians(225))
-                .waitSeconds(2);
-
-//
-//        TrajectoryActionBuilder ThridSample = drive.actionBuilder(new Pose2d(56, 56,225))
-//                .setTangent(0)
-//                .splineToConstantHeading(new Vector2d(48, 38), Math.PI / 2)
-//                .turn(Math.toRadians(45));
-
-        //park at rung
-        Action trajectoryActionCloseOut = DriveToBaseket.endTrajectory().fresh()
-                .turnTo(Math.toRadians(270))
-//                .lineToY(0)
-//                .setTangent(0)
-//                .lineToX(30)
-
-                .splineToConstantHeading(new Vector2d(30, 5), Math.PI / 2)
+        // traj action close out
+        Action trajectoryActionCloseOut = moveToPickup.endTrajectory().fresh()
                 .build();
 
         // actions that need to happen on init; for instance, a claw tightening.
         Actions.runBlocking(claw.closeClaw());
         while (!isStopRequested() && !opModeIsActive()) {
             telemetry.addLine("We're the goats don't worry drivers, WE ARE THEM!");
+            telemetry.addData("x", drive.pose.position.x);
+            telemetry.addData("y", drive.pose.position.y);
+            telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
             telemetry.update();
         }
 
@@ -346,37 +267,20 @@ public class LowRungTest extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        Action driveToBaseket = DriveToBaseket.build();
-        Action moveBackToBasket1 = MoveBackToBasket1.build();
-        Action firstSample = FirstSample.build();
-        Action secondSample = SecondSample.build();
+        Action pickup = moveToPickup.build();
+        Action basket = toBasket.build();
         Actions.runBlocking(
                 new SequentialAction(
-//                        drops preplaced sample after arriving to basket
+                        claw.openClaw(),
+                        pickup,
+                        claw.closeClaw(),
+                        basket,
                         lift.liftUp(),
                         wrist.wristDown(),
-                        driveToBaseket,
                         extend.extendForward(),
                         wrist.wristUp(),
-
-//                        firstSample,
-//                        extend.extendBackwards(),
-                        claw.openClaw()
-//                        moveBackToBasket1,
-//                        secondSample
-
-////                        retracts
-//                        lift.liftDown(),
-////                        wrist.wristDown(),
-////                        goes to teh fiurst sample and picks up
-//                        firstSample,
-////                        claw.closeClaw(),
-//                        lift.liftUp(),
-////                        goes back to basket and score
-////                        moveBackToBasket,
-//                        lift.liftDown(),
-////                      @TODO more add second and third possibly a fourth
-//                        trajectoryActionCloseOut
+                        claw.openClaw(),
+                        trajectoryActionCloseOut
                 )
         );
     }

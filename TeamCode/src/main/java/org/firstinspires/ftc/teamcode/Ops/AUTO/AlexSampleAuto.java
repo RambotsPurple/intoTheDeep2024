@@ -288,12 +288,12 @@ public class AlexSampleAuto extends LinearOpMode {
 
 
         //drive to basket
-        TrajectoryActionBuilder ToBasket = drive.actionBuilder(initialPose)
+        TrajectoryActionBuilder ToBasket = drive.actionBuilder(new Pose2d(-11.5, -60, Math.toRadians(90)))
                 .strafeToLinearHeading(new Vector2d(-55, -54), Math.toRadians(225))
                 .waitSeconds(2);
 
 
-        TrajectoryActionBuilder FirstSample = drive.actionBuilder(basketPose)
+        TrajectoryActionBuilder FirstSample = drive.actionBuilder(new Pose2d(-55, -54, Math.toRadians(225)))
                 .strafeToLinearHeading(new Vector2d(-48, -38), Math.toRadians(90))
                 .waitSeconds(2);
 
