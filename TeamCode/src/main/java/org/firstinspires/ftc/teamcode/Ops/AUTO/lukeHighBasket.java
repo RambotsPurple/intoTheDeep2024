@@ -19,13 +19,13 @@ import org.firstinspires.ftc.teamcode.RR.SparkFunOTOSDrive;
 
 @Config
 
-@Autonomous(name = "real high basket pls work 4/25/25", group = "Autonomous")
+@Autonomous(name = "real high basket pls work 5/13/25", group = "Autonomous")
 public class lukeHighBasket extends LinearOpMode {
     int targetPos = 0;
 
     public class wrist{
         public wrist () {
-
+            RobotConfig.wrist1.setPosition(0.8);
         }
         public class WristUp implements Action {
             @Override
@@ -139,6 +139,10 @@ public class lukeHighBasket extends LinearOpMode {
     // Claw component
     public class Claw {
 
+        public Claw() {
+            RobotConfig.intake.setPosition(1.0);
+        }
+
         public class CloseClaw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
@@ -241,8 +245,12 @@ public class lukeHighBasket extends LinearOpMode {
         wrist wrist = new wrist();
         extend extend = new extend();
 
+        // align to block
+        TrajectoryActionBuilder alignPickup = drive.actionBuilder(initialPose)
+                .strafeToLinearHeading(new Vector2d(25, -67), Math.toRadians(0));
+
         // pickup
-        TrajectoryActionBuilder moveToPickup = drive.actionBuilder(initialPose)
+        TrajectoryActionBuilder moveToPickup = drive.actionBuilder(new Pose2d(25, -67, Math.toRadians(0)))
                 .strafeToLinearHeading(new Vector2d(35, -67), Math.toRadians(0));
 
         // basket
@@ -254,7 +262,7 @@ public class lukeHighBasket extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(35, -55), Math.toRadians(0));
 
         // traj action close out
-        Action trajectoryActionCloseOut = moveToPickup.endTrajectory().fresh()
+        Action trajectoryActionCloseOut = alignPickup.endTrajectory().fresh()
                 .build();
 
         // actions that need to happen on init; for instance, a claw tightening.
@@ -271,12 +279,15 @@ public class lukeHighBasket extends LinearOpMode {
 
         if (isStopRequested()) return;
 
+        Action align = alignPickup.build();
         Action pickup = moveToPickup.build();
         Action basket = toBasket.build();
         Action parking = park.build();
         Actions.runBlocking(
                 new SequentialAction(
+                        claw.closeClaw(),
                         claw.openClaw(),
+                        align,
                         pickup,
                         claw.closeClaw(),
                         basket,
