@@ -20,6 +20,7 @@ public class linearOpMode extends LinearOpMode {
     double dir;
     int targetPos = 0;
     int armCorrectionFactor = 0;
+    boolean hardstopExt = true;
 
     @Override
     public void runOpMode() {
@@ -66,8 +67,19 @@ public class linearOpMode extends LinearOpMode {
                 fieldCentric = false;
             }
 
+            // toggle hardstop
+            if (gamepad2.x) {
+                hardstopExt = !hardstopExt;
+            }
+
             // linear slide controls
-            double slideExtendPower = gamepad2.left_stick_y;
+            double slideExtendPower ;
+            if (hardstopExt && (RobotConfig.encoder.getCurrentPosition() <= -63 || RobotConfig.encoder.getCurrentPosition() >= 0)) {
+                slideExtendPower = 0;
+            } else {
+                slideExtendPower = gamepad2.left_stick_y;
+            }
+
             double slideAbdPower = gamepad2.right_stick_y;
             if (gamepad2.right_stick_y != 0) {
                 RobotConfig.arm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -182,6 +194,7 @@ public class linearOpMode extends LinearOpMode {
 
             telemetry.addData("Wrist pos: ", wristPos);
             telemetry.addData("arm correction factor: ", armCorrectionFactor);
+            telemetry.addData("hardstop ext: ", hardstopExt);
             telemetry.update();
 
         }
